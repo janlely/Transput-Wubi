@@ -1,2 +1,2 @@
 xcodebuild
-cp -r ./build/Release/Typut.app ~/Library/Input\ Methods
+cp -r ./build/Release/Transput.app ~/Library/Input\ Methods

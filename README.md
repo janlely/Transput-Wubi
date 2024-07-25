@@ -1,4 +1,4 @@
-# Typut
+# Transput
 
 This is a sample implementation of the IMKit App with Swift 5.10.
 
@@ -17,7 +17,7 @@ The following command will produce `./build` directory.
 xcodebuild
 ```
 
-You can copy and paste `./build/Release/Typut.app` to `~/Library/Input Methods` and re-login in your Mac. It will enable Typut IM. You can choose Typut from input source list.
+You can copy and paste `./build/Release/Transput.app` to `~/Library/Input Methods` and re-login in your Mac. It will enable Transput IM. You can choose Transput from input source list.
 
 ## Reference
 

@@ -1,6 +1,6 @@
 //
-//  TyputInputController.swift
-//  TyputInputController
+//  TransputInputController.swift
+//  TransputInputController
 //
 //  Created by ensan on 2021/09/07.
 //
@@ -96,8 +96,8 @@ enum InputState {
     }
 }
 
-@objc(TyputInputController)
-class TyputInputController: IMKInputController {
+@objc(TransputInputController)
+class TransputInputController: IMKInputController {
     private var composingText: [String] = []
     private var selectedCandidate: String? = nil
     private var inputState: InputState = .none

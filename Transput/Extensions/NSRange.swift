@@ -1,6 +1,6 @@
 //
 //  NSRange.swift
-//  Typut
+//  Transput
 //
 //  Created by miwa on 2024/03/18.
 //
