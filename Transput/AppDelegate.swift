@@ -26,16 +26,22 @@ class NSManualApplication: NSApplication {
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var server = IMKServer()
-    var candidatesWindow = IMKCandidates()
+    var transPanel: NSPanel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Insert code here to initialize your application
         self.server = IMKServer(name: Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String, bundleIdentifier: Bundle.main.bundleIdentifier)
-        self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel, styleType: kIMKMain)
+        self.transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 200, height: 200),
+                                  styleMask: [.nonactivatingPanel],
+                                  backing: .buffered,
+                                  defer: false)
+        self.transPanel?.level = .popUpMenu
+        self.transPanel?.hidesOnDeactivate = true
+        self.transPanel?.isFloatingPanel = true
+        self.transPanel?.contentView?.wantsLayer = true
+        self.transPanel?.contentView?.layer?.backgroundColor = NSColor.red.cgColor
         NSLog("tried connection")
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        // Insert code here to tear down your application
     }
 }

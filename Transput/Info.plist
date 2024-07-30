@@ -16,5 +16,19 @@
 	</array>
 	<key>tsInputMethodIconFileKey</key>
 	<string>main.tiff</string>
+    <key>InputMethodLanguages</key>
+    <array>
+        <string>zh-Hans</string>
+    </array>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>zh_CN</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>zh-Hans</string>
+    </array>
+    <key>TISInputSourceLanguages</key>
+    <array>
+        <string>zh-Hans</string>
+    </array>
 </dict>
 </plist>
