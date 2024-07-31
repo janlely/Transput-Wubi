@@ -15,9 +15,14 @@
 		1A41E64226E74627009B65D7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A41E64126E74627009B65D7 /* AppDelegate.swift */; };
 		1A41E64426E74669009B65D7 /* TransputInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A41E64326E74669009B65D7 /* TransputInputController.swift */; };
 		1A41E64726E74937009B65D7 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 1A41E64626E74937009B65D7 /* main.tiff */; };
-		5509904D2BA87AC400857E0D /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5509904C2BA87AC400857E0D /* Typography.swift */; };
 		55A9C54B2BA847A1007F6F02 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 55A9C54A2BA847A1007F6F02 /* main@2x.tiff */; };
-		55A9C54E2BA84951007F6F02 /* NSRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A9C54D2BA84951007F6F02 /* NSRange.swift */; };
+		E5CAE5712C58910C00A0BA4C /* icons8-loading-24.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5702C58910C00A0BA4C /* icons8-loading-24.png */; };
+		E5CAE5732C58914200A0BA4C /* icons8-t-26.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5722C58914200A0BA4C /* icons8-t-26.png */; };
+		E5CAE5772C58C0A700A0BA4C /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CAE5762C58C0A700A0BA4C /* Trie.swift */; };
+		E5CAE57D2C59E87500A0BA4C /* NSRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CAE57B2C59E87500A0BA4C /* NSRange.swift */; };
+		E5CAE5862C5A1E0500A0BA4C /* better-wubi.dict in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5842C5A1E0400A0BA4C /* better-wubi.dict */; };
+		E5CAE5872C5A1E0500A0BA4C /* wubi.bin in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5852C5A1E0500A0BA4C /* wubi.bin */; };
+		E5FF9F3A2C5A25D500409F83 /* ComposingText.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF9F392C5A25D500409F83 /* ComposingText.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,9 +56,14 @@
 		1A41E64526E7470D009B65D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1A41E64626E74937009B65D7 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = main.tiff; path = Transput/main.tiff; sourceTree = SOURCE_ROOT; };
 		1A41E64826E7495A009B65D7 /* Transput.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Transput.entitlements; sourceTree = "<group>"; };
-		5509904C2BA87AC400857E0D /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
 		55A9C54A2BA847A1007F6F02 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
-		55A9C54D2BA84951007F6F02 /* NSRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSRange.swift; sourceTree = "<group>"; };
+		E5CAE5702C58910C00A0BA4C /* icons8-loading-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icons8-loading-24.png"; path = "../../Downloads/icons8-loading-24.png"; sourceTree = "<group>"; };
+		E5CAE5722C58914200A0BA4C /* icons8-t-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icons8-t-26.png"; path = "../../Downloads/icons8-t-26.png"; sourceTree = "<group>"; };
+		E5CAE5762C58C0A700A0BA4C /* Trie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
+		E5CAE57B2C59E87500A0BA4C /* NSRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSRange.swift; sourceTree = "<group>"; };
+		E5CAE5842C5A1E0400A0BA4C /* better-wubi.dict */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "better-wubi.dict"; sourceTree = SOURCE_ROOT; };
+		E5CAE5852C5A1E0500A0BA4C /* wubi.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = wubi.bin; sourceTree = SOURCE_ROOT; };
+		E5FF9F392C5A25D500409F83 /* ComposingText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposingText.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +94,8 @@
 		1A41E60B26E745D9009B65D7 = {
 			isa = PBXGroup;
 			children = (
+				E5CAE5722C58914200A0BA4C /* icons8-t-26.png */,
+				E5CAE5702C58910C00A0BA4C /* icons8-loading-24.png */,
 				1A41E61626E745D9009B65D7 /* Transput */,
 				1A41E62726E745DD009B65D7 /* TransputTests */,
 				1A41E63126E745DD009B65D7 /* TransputUITests */,
@@ -104,16 +116,19 @@
 		1A41E61626E745D9009B65D7 /* Transput */ = {
 			isa = PBXGroup;
 			children = (
+				E5CAE5842C5A1E0400A0BA4C /* better-wubi.dict */,
+				E5CAE5852C5A1E0500A0BA4C /* wubi.bin */,
+				E5CAE57C2C59E87500A0BA4C /* Extensions */,
 				1A41E64526E7470D009B65D7 /* Info.plist */,
 				1A41E64826E7495A009B65D7 /* Transput.entitlements */,
 				1A41E64326E74669009B65D7 /* TransputInputController.swift */,
 				1A41E64126E74627009B65D7 /* AppDelegate.swift */,
-				5509904B2BA87AB800857E0D /* Typography */,
-				55A9C54C2BA84945007F6F02 /* Extensions */,
 				1A41E61B26E745DD009B65D7 /* Assets.xcassets */,
 				1A41E64626E74937009B65D7 /* main.tiff */,
 				55A9C54A2BA847A1007F6F02 /* main@2x.tiff */,
 				1A41E61D26E745DD009B65D7 /* Preview Content */,
+				E5CAE5762C58C0A700A0BA4C /* Trie.swift */,
+				E5FF9F392C5A25D500409F83 /* ComposingText.swift */,
 			);
 			path = Transput;
 			sourceTree = "<group>";
@@ -143,18 +158,10 @@
 			path = TransputUITests;
 			sourceTree = "<group>";
 		};
-		5509904B2BA87AB800857E0D /* Typography */ = {
+		E5CAE57C2C59E87500A0BA4C /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				5509904C2BA87AC400857E0D /* Typography.swift */,
-			);
-			path = Typography;
-			sourceTree = "<group>";
-		};
-		55A9C54C2BA84945007F6F02 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				55A9C54D2BA84951007F6F02 /* NSRange.swift */,
+				E5CAE57B2C59E87500A0BA4C /* NSRange.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -266,6 +273,10 @@
 				1A41E64726E74937009B65D7 /* main.tiff in Resources */,
 				1A41E61F26E745DD009B65D7 /* Preview Assets.xcassets in Resources */,
 				55A9C54B2BA847A1007F6F02 /* main@2x.tiff in Resources */,
+				E5CAE5712C58910C00A0BA4C /* icons8-loading-24.png in Resources */,
+				E5CAE5862C5A1E0500A0BA4C /* better-wubi.dict in Resources */,
+				E5CAE5732C58914200A0BA4C /* icons8-t-26.png in Resources */,
+				E5CAE5872C5A1E0500A0BA4C /* wubi.bin in Resources */,
 				1A41E61C26E745DD009B65D7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -291,9 +302,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5CAE5772C58C0A700A0BA4C /* Trie.swift in Sources */,
+				E5CAE57D2C59E87500A0BA4C /* NSRange.swift in Sources */,
 				1A41E64226E74627009B65D7 /* AppDelegate.swift in Sources */,
-				55A9C54E2BA84951007F6F02 /* NSRange.swift in Sources */,
-				5509904D2BA87AC400857E0D /* Typography.swift in Sources */,
+				E5FF9F3A2C5A25D500409F83 /* ComposingText.swift in Sources */,
 				1A41E64426E74669009B65D7 /* TransputInputController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -460,7 +472,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Transput/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Y5653L4HB;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -494,7 +506,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Transput/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Y5653L4HB;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;

@@ -7,7 +7,10 @@
 
 import Cocoa
 import InputMethodKit
+import os.log
+import CoreData
 
+let log = OSLog(subsystem: "com.ensan.inputmethod.Transput", category: "inputmethod")
 // Necessary to launch this app
 class NSManualApplication: NSApplication {
     private let appDelegate = AppDelegate()
@@ -26,22 +29,13 @@ class NSManualApplication: NSApplication {
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var server = IMKServer()
-    var transPanel: NSPanel?
-
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         self.server = IMKServer(name: Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String, bundleIdentifier: Bundle.main.bundleIdentifier)
-        self.transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 200, height: 200),
-                                  styleMask: [.nonactivatingPanel],
-                                  backing: .buffered,
-                                  defer: false)
-        self.transPanel?.level = .popUpMenu
-        self.transPanel?.hidesOnDeactivate = true
-        self.transPanel?.isFloatingPanel = true
-        self.transPanel?.contentView?.wantsLayer = true
-        self.transPanel?.contentView?.layer?.backgroundColor = NSColor.red.cgColor
         NSLog("tried connection")
     }
-
+    
     func applicationWillTerminate(_ notification: Notification) {
     }
+    
 }
