@@ -80,7 +80,7 @@ class ComposingText {
             composingArray.last!.manualChange()
         }
         os_log(.info, log: log, "inputOtherSymble,添加一个空的单元并插入符号")
-        appendUnit(char)
+        appendUnit(convertPunctuation(char))
         //添加一个新格子
         composingArray.append(ComposingUint(""))
     }
@@ -201,3 +201,4 @@ enum ComposingUintState {
     case MANUALLY_CHANGED
     case AUTO_CHANGED
 }
+

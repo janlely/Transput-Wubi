@@ -8,13 +8,17 @@
 import Foundation
 import os.log
 
-class TrieNode: Codable {
+class TrieNode {
     var children: [UInt8: TrieNode] = [:]
     var code: UInt8?
-    var words: [String] = []
-    func append(_ words: [String]) {
-        if self.words.count < 10 {
-            self.words += words.filter {word in !self.words.contains(word)}
+    var words: [Word] = []
+    func append(_ word: Word) {
+        if self.words.contains(where: { $0.value == word.value }) {
+            return
+        }
+        self.words.insertSorted(word)
+        if self.words.count > 10 {
+            self.words.removeLast()
         }
     }
     
@@ -26,18 +30,22 @@ class TrieNode: Codable {
         self.code = code
     }
     
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        children = try container.decode([UInt8: TrieNode].self, forKey: .children)
-        code = try container.decodeIfPresent(UInt8.self, forKey: .code)
-        words = try container.decode([String].self, forKey: .words)
+}
+
+struct Word: Comparable {
+    let value: String
+    let weight: Int
+    
+    static func < (lhs: Word, rhs: Word) -> Bool {
+        return lhs.weight > rhs.weight
     }
     
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(children, forKey: .children)
-        try container.encode(code, forKey: .code)
-        try container.encode(words, forKey: .words)
+    static func == (lhs: Word, rhs: Word) -> Bool {
+        return lhs.value == rhs.value
+    }
+    
+    func multiplyBy(_ coefficient: Int) -> Word {
+        return Word(value: value, weight: self.weight * coefficient)
     }
 }
 
@@ -71,48 +79,30 @@ class Trie {
         while fgets(buffer, Int32(bufferSize), filePointer) != nil {
             let line = String(cString: buffer)
             let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-            let parts = trimmedLine.split(separator: " ", maxSplits: 1)
-            if parts.count == 2 {
-                let code = String(parts[0])
-                let word = String(parts[1])
-                Trie.insert(root: result, code: code, words: [word])
+            let parts = trimmedLine.split(separator: " ", maxSplits: 2)
+            if parts.count == 3 {
+                let word = String(parts[0])
+                let code = String(parts[1])
+                guard let weight = Int(parts[2]) else {
+                    continue
+                }
+                Trie.insert(root: result, code: code, word: Word(value: word, weight: weight))
             }
         }
         return result
     }
     
-    func saveAsBin(root: TrieNode, url: URL) {
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .binary
-        do {
-            let data = try encoder.encode(root)
-            try data.write(to: url)
-        } catch {
-            os_log(.error, log: log, "存储词库失败")
-        }
-    }
     
-    func loadFromBin(url: URL) -> TrieNode? {
-        do {
-            let data = try Data(contentsOf: url)
-            let decoder = PropertyListDecoder()
-            let root = try decoder.decode(TrieNode.self, from: data)
-            return root
-        } catch {
-            os_log(.error, log: log, "读取词库失败")
-            return nil
-        }
-    }
-    
-    static func insert(root: TrieNode, code: String, words: [String]) {
+    static func insert(root: TrieNode, code: String, word: Word) {
         guard let head = code.first?.asciiValue else {
             return
         }
         if root.children[head] == nil {
             root.children[head] = TrieNode(head)
         }
-        root.children[head]!.append(words)
-        insert(root: root.children[head]!, code: String(code.dropFirst()), words: words)
+        let tail = String(code.dropFirst())
+        root.children[head]!.append(word.multiplyBy(weigthCoef(tail.count)))
+        insert(root: root.children[head]!, code: tail, word: word)
     }
     
     static func search(root: TrieNode, code: String) -> [String] {
@@ -120,7 +110,7 @@ class Trie {
             return []
         }
         if code.count == 1 {
-            return root.children[head]!.words
+            return root.children[head]!.words.map {$0.value}
         }
         return search(root: root.children[head]!, code: String(code.dropFirst()))
     }

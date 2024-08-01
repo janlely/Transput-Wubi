@@ -29,6 +29,7 @@ class NSManualApplication: NSApplication {
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var server = IMKServer()
+    var monitor = KeyboardMonitor()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         self.server = IMKServer(name: Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String, bundleIdentifier: Bundle.main.bundleIdentifier)

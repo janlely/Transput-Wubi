@@ -17,9 +17,12 @@ class TransputInputController: IMKInputController {
     private var candidatesWindow: IMKCandidates
     private var composingText: ComposingText = ComposingText(4) //五笔最长是4个编码
     private var candidateArray: [String]! = []
-    private var button: NSButton!
     private var transPanel: NSPanel!
+    private var transBtn: NSButton!
     private var wubiDict: TrieNode!
+    private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
+    private var observation: NSKeyValueObservation?
+    private var isChecking: Bool = false
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
@@ -30,7 +33,7 @@ class TransputInputController: IMKInputController {
     
     func initTransPanel() {
         os_log(.info, log: log, "初始化翻译面板")
-        transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 20, height: 20),
+        transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
                             styleMask: [.nonactivatingPanel],
                             backing: .buffered,
                             defer: false)
@@ -58,15 +61,20 @@ class TransputInputController: IMKInputController {
         transPanel.contentView?.layer?.add(animation, forKey: "fadeIn")
         
         
-        let iconButton = NSButton(frame: NSRect(x: 0, y: 0, width: 20, height: 20))
-        iconButton.imageScaling = .scaleProportionallyDown
-        iconButton.image = NSImage(named: "icons8-t-26")
-        iconButton.isBordered = false
-        iconButton.target = self
-        iconButton.layer?.backgroundColor = NSColor.white.cgColor
-        iconButton.action = #selector(buttonClicked)
-        transPanel.contentView?.addSubview(iconButton)
+        transBtn = NSButton(title: "翻译成英语", target: nil, action: #selector(buttonClicked))
+        transBtn.isBordered = false
+        transBtn.layer?.backgroundColor = NSColor.white.cgColor
+        transPanel.contentView?.addSubview(transBtn)
         
+        
+        transBtn.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            transBtn.topAnchor.constraint(equalTo: transPanel.contentView!.topAnchor),
+            transBtn.leadingAnchor.constraint(equalTo: transPanel.contentView!.leadingAnchor),
+            transBtn.trailingAnchor.constraint(equalTo: transPanel.contentView!.trailingAnchor),
+            transBtn.bottomAnchor.constraint(equalTo: transPanel.contentView!.bottomAnchor)
+        ])
+
     }
 
     
@@ -77,8 +85,33 @@ class TransputInputController: IMKInputController {
             os_log(.error, log: log, "sender不是IMKTextInput")
             return false
         }
+        
+        switch event.type {
+        case .flagsChanged:
+            //TODO: 处理特殊按键事件
+            return true
+        case .keyDown:
+            return handlerKeyDown(event)
+        default:
+            return false
+        }
+        
+    }
+    
+    func handlerKeyDown(_ event: NSEvent!) -> Bool {
+        
         os_log(.info, log: log, "handle,开始进行输入处理")
         
+        //忽略所有的组合键
+        let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        // 如果有任何修饰键被按下，就忽略这个事件
+        if modifierFlags.contains(.command) ||
+           modifierFlags.contains(.option) ||
+            modifierFlags.contains(.control) {
+            os_log(.info, log: log, "忽略组合键")
+            return false
+        }
+
         switch event.keyCode {
         case 51: //backspace
             os_log(.info, log: log, "handler,处理退格")
@@ -93,6 +126,7 @@ class TransputInputController: IMKInputController {
             os_log(.info, log: log, "handler,处理其他字符")
             guard let text = event.characters,
                   text.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0.isPunctuation || $0.isSymbol) }) else {
+                os_log(.info, log: log, "不支持的按键: %{public}d", event.keyCode)
                 return false
             }
             os_log(.info, log: log, "handler,处理字母、数字、标点、符号")
@@ -162,7 +196,7 @@ class TransputInputController: IMKInputController {
             os_log(.info, "makeCandidates,输入为空，返回空的候选词")
             return []
         }
-        os_log(.info, log: log, "makeCandidates,从Trie中搜索候选词")
+        os_log(.info, log: log, "makeCandidates,从Trie中搜索候选词, base: %{public}s", base)
         return Trie.search(root: wubiDict, code: base)
     }
     
@@ -172,10 +206,9 @@ class TransputInputController: IMKInputController {
         self.candidatesWindow.update()
         if self.candidateArray.isEmpty {
             self.candidatesWindow.hide()
-            if !text.isEmpty {
+            if text.containsChineseCharacters {
                 //获取标记文本末尾的位置
-                let position = findMarkedTextRightBound()
-                showPanel(position)
+                showPanel()
             } else {
                 hidePanel()
             }
@@ -183,17 +216,6 @@ class TransputInputController: IMKInputController {
         }
         hidePanel()
         self.candidatesWindow.show()
-    }
-    
-    func findMarkedTextRightBound() -> CGPoint {
-        // 获取标记文本的范围
-        let markedRange = self.client().markedRange()
-        // 标记文本的末尾位置
-        let position = markedRange.upperBound
-        let range = NSRange(location: position, length: 0)
-        var actualRange = NSRange()
-        let firstRect = self.client().firstRect(forCharacterRange: range, actualRange: &actualRange)
-        return CGPoint(x: firstRect.midX, y: firstRect.midY - 10)
     }
     
     @objc func buttonClicked(_ sender: NSButton) {
@@ -210,9 +232,23 @@ class TransputInputController: IMKInputController {
     }
     
     
-    func showPanel(_ position: CGPoint) {
-        os_log(.info, log: log, "显示翻译按钮")
-        transPanel.setFrameOrigin(position)
+    func showPanel() {
+        var inputPos = NSRect()
+        let attr = self.client().attributes(forCharacterIndex: 0, lineHeightRectangle: &inputPos)
+        var heigthOffset: CGFloat = 26
+        if let lineHeight = attr?["IMKLineHeight"] as? NSNumber {
+            heigthOffset = CGFloat(lineHeight.floatValue)
+        }
+        if let screenFrame = NSScreen.main {
+            if inputPos.minY > screenFrame.frame.width / 2 {
+                inputPos.origin.y = inputPos.minY - heigthOffset
+            } else {
+                inputPos.origin.y = inputPos.minY + heigthOffset
+            }
+        }
+        os_log(.info, log: log, "显示翻译按钮, x: %{public}.1f, y: %{public}.1f, width: %{public}.1f, height: %{public}.1f",
+               inputPos.minX, inputPos.minY, 100, 26)
+        transPanel.setFrame(inputPos, display: false)
         transPanel.orderFront(nil)
     }
     
@@ -220,6 +256,7 @@ class TransputInputController: IMKInputController {
         os_log(.info, log: log, "隐藏翻译按钮")
         transPanel.orderOut(nil)
     }
+    
     
     override func activateServer(_ sender: Any!) {
         super.activateServer(sender)
@@ -232,7 +269,7 @@ class TransputInputController: IMKInputController {
             return
         }
         os_log(.info, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
-        wubiDict = Trie.loadFromText("better-wubi.dict")
+        wubiDict = Trie.loadFromText("wubi86_jidian.dict")
         os_log(.info, log: log, "wubi loaded: \(Date().timeIntervalSince1970)")
     }
     
@@ -242,6 +279,14 @@ class TransputInputController: IMKInputController {
         self.candidatesWindow.hide()
         hidePanel()
     }
+    
+    func switchInputMethod() {
+        os_log(.info, log: log, "切换到英文输入法")
+        // 实现切换到上一个输入法的逻辑
+        let inputSource = TISCopyInputSourceForLanguage("en" as CFString).takeRetainedValue()
+        TISSelectInputSource(inputSource)
+    }
+    
 }
 
 
