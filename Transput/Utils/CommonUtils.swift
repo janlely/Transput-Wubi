@@ -64,3 +64,4 @@ func weigthCoef(_ tailCount: Int) -> Int {
     default: 0
     }
 }
+

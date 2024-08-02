@@ -93,7 +93,11 @@ class ComposingText {
         if composingArray.isEmpty {
             return nil
         }
-        return composingArray.last!.getText()
+        guard let last = composingArray.last else {
+            os_log(.info, log: log, "composingArray.last不存在")
+            return nil
+        }
+        return last.getText()
     }
     
     func select(_ value: String) {

@@ -11,4 +11,8 @@ extension NSRange {
     static var notFound: NSRange {
         NSRange(location: NSNotFound, length: NSNotFound)
     }
+    
+    static var empty: NSRange {
+        NSRange(location: NSNotFound, length: 0)
+    }
 }
