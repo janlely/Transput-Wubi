@@ -89,6 +89,7 @@ class TransputInputController: IMKInputController {
         switch event.type {
         case .flagsChanged:
             //TODO: 处理特殊按键事件
+            os_log(.info, log: log, "特殊按键被按下")
             return true
         case .keyDown:
             return handlerKeyDown(event)
@@ -118,7 +119,7 @@ class TransputInputController: IMKInputController {
             return handlerBackspace()
         case 49: //Space
             os_log(.info, log: log, "handler,处理空格")
-            return handlerSpace()
+            return composingText.isEmpty() ? false : handlerSpace()
         case 36: //Enter
             os_log(.info, log: log, "handler,处理回车")
             return handlerEnter()
@@ -221,14 +222,6 @@ class TransputInputController: IMKInputController {
     @objc func buttonClicked(_ sender: NSButton) {
         // 处理按钮点击事件
         os_log(.info, log: log, "点击翻译")
-        sender.image = NSImage(named: "icons8-loading-24")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            // 这里的代码会在 2 秒后执行
-            self.client().insertText("one", replacementRange: .notFound)
-            self.composingText.clear()
-            sender.image = NSImage(named: "icons8-t-26")
-            self.hidePanel()
-        }
     }
     
     
@@ -264,6 +257,11 @@ class TransputInputController: IMKInputController {
         self.candidatesWindow.hide()
         hidePanel()
         composingText.clear()
+        candidateArray.removeAll()
+        //如果有已经marked的内容，把它提交掉
+        if let str = getMarkedText() {
+            self.client().insertText(str, replacementRange: .notFound)
+        }
         if wubiDict != nil {
             os_log(.info, log: log, "字典已加载，无需重复加载")
             return
@@ -274,10 +272,10 @@ class TransputInputController: IMKInputController {
     }
     
     override func deactivateServer(_ sender: Any!) {
-        super.deactivateServer(sender)
         os_log(.info, log: log, "停用输入法")
-        self.candidatesWindow.hide()
+        
         hidePanel()
+        super.deactivateServer(sender)
     }
     
     func switchInputMethod() {
@@ -285,6 +283,16 @@ class TransputInputController: IMKInputController {
         // 实现切换到上一个输入法的逻辑
         let inputSource = TISCopyInputSourceForLanguage("en" as CFString).takeRetainedValue()
         TISSelectInputSource(inputSource)
+    }
+    
+    func getMarkedText() -> String? {
+        let length = self.client().length()
+        guard length > 0 else { return nil}
+        
+        let range = NSRange(location: 0, length: length)
+        let attrString = self.client().attributedSubstring(from: range)
+        
+        return attrString?.string
     }
     
 }

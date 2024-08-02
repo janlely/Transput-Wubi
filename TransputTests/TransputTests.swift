@@ -21,6 +21,11 @@ class TransputTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        guard let root = Trie.loadFromText("wubi86_jidian.dict") else {
+            throw InputError.errorLoadDict
+        }
+        let composingText = ComposingText(4)
+        
     }
 
     func testPerformanceExample() throws {
@@ -30,4 +35,8 @@ class TransputTests: XCTestCase {
         }
     }
 
+    
+    func simulateInput(_ char: Character) {
+        
+    }
 }

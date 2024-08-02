@@ -57,9 +57,9 @@ extension Array where Element: Comparable {
 
 func weigthCoef(_ tailCount: Int) -> Int {
     return switch tailCount {
-    case 0: 100
-    case 1: 30
-    case 2: 5
+    case 0: 500
+    case 1: 50
+    case 2: 10
     case 3: 1
     default: 0
     }

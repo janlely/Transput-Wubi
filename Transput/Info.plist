@@ -32,5 +32,7 @@
 	</array>
 	<key>TICapsLockLanguageSwitchCapable</key>
 	<true/>
+	<key>TISIntendedLanguage</key>
+	<string>zh-Hans</string>
 </dict>
 </plist>
