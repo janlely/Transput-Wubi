@@ -22,10 +22,10 @@ class ComposingText {
         composingArray.append(ComposingUint(String(char)))
     }
     
-    func input(_ char: Character, _ candidates: [String]) {
+    func input(_ char: Character, _ candidates: [String]) -> Bool {
         if composingArray.isEmpty {
             composingArray.append(ComposingUint(String(char)))
-            return
+            return false
         }
         if char.isLetter && char.isLowercase {
             os_log(.info ,"input,输入小字字母")
@@ -39,7 +39,7 @@ class ComposingText {
         return inputOtherSymble(char, candidates)
     }
     
-    func inputLowercaseLetter(_ char: Character, _ candidates: [String]) {
+    func inputLowercaseLetter(_ char: Character, _ candidates: [String]) -> Bool {
         //如果当前的格子编码数量达到上限，则自动选择第一个候选词
         if composingArray.last!.length() >= codeUpperLimit && !candidates.isEmpty {
             os_log(.info, log: log, "inputLowercaseLetter,格子内容达上限: %{public}s", self.composingArray.last!.getText())
@@ -47,14 +47,15 @@ class ComposingText {
             composingArray.last!.autoChange()
             //添加一个新格子
             appendUnit(char)
-            return
+            return false
         }
         //更新当前格子内容
         os_log(.info, log: log, "inputLowercaseLetter,追加一个字符,数组内容为: %{public}s", self.joined())
         composingArray.last!.append(char)
+        return false
     }
     
-    func inputNumber(_ char: Character, _ candidates: [String]) {
+    func inputNumber(_ char: Character, _ candidates: [String]) -> Bool {
         //如果数字对应的候选词存在，则选择对应的候选词
         let idx = Int(String(char))!
         if candidates.count >= idx {
@@ -63,16 +64,17 @@ class ComposingText {
             composingArray.last!.manualChange()
             //添加一个新格子，用于后续的输入
             composingArray.append(ComposingUint(""))
-            return
+            return !ConfigModel.shared.useAITrans
         }
         os_log(.info, log: log, "inputNumber,插入数字,数组内容为:%{public}s", joined())
         //更新当前格子内容
         composingArray.last!.append(char)
         //添加一个新格子
         composingArray.append(ComposingUint(""))
+        return false
     }
     
-    func inputOtherSymble(_ char: Character, _ candidates: [String]) {
+    func inputOtherSymble(_ char: Character, _ candidates: [String]) -> Bool {
         //如果候选词存在，则选择第一个候选词
         if candidates.count > 0  {
             os_log(.info, log: log, "inputOtherSymble,候选词列表不为空，选择第一个候选词")
@@ -83,6 +85,7 @@ class ComposingText {
         appendUnit(convertPunctuation(char))
         //添加一个新格子
         composingArray.append(ComposingUint(""))
+        return false
     }
     
     func joined() -> String {

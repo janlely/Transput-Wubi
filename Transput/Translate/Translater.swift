@@ -9,5 +9,5 @@ import Foundation
 
 
 protocol Translater {
-    func translate(_ content: String, completion: @escaping (String) -> Void)
+    func translate(_ content: String, completion: @escaping (String) -> Void, defaultHandler: @escaping () -> Void)
 }

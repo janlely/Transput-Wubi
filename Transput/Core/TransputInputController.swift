@@ -21,7 +21,6 @@ class TransputInputController: IMKInputController {
     private var transBtn: NSButton!
     private var wubiDict: TrieNode!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
-    private var translater: Translater = TongyiQianWen()
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
@@ -132,7 +131,8 @@ class TransputInputController: IMKInputController {
             //跳过非小写字线开头的输入
             if !text.allSatisfy({$0.isLetter && $0.isLowercase}) && composingText.isEmpty() {
                 os_log(.info, log: log, "非小写字母开头的跳过")
-                return false
+                self.client().insertText(convertPunctuation(text.first!), replacementRange: .empty)
+                return true
             }
             os_log(.info, log: log, "handler,处理字母、数字、标点、符号")
             return handlerInput(text.first!)
@@ -150,7 +150,7 @@ class TransputInputController: IMKInputController {
         os_log(.info, log: log, "选择候选词: %s", candidateString.string)
         composingText.select(candidateString.string)
         os_log(.info, log: log, "标记用户输入: %s", composingText.joined())
-        self.candidatesWindow.hide()
+        hideCadidatesWindow()
         setMarkedText(composingText.joined())
     }
     
@@ -179,16 +179,20 @@ class TransputInputController: IMKInputController {
         os_log(.info, log: log, "输入回车，提交输入到系统")
         commitText(text)
         hidePanel()
-        self.candidatesWindow.hide()
+        hideCadidatesWindow()
         return true
     }
     
     func handlerInput(_ char: Character) -> Bool {
         os_log(.info, log: log, "handlerInput, 处理用户输入")
-        composingText.input(char, self.candidateArray)
+        let needCommit = composingText.input(char, self.candidateArray)
         let joined = composingText.joined()
         os_log(.info, log: log, "handlerInput, 设置标记: %{public}s", joined)
-        setMarkedText(joined)
+        if needCommit {
+            commitText(joined)
+        } else {
+            setMarkedText(joined)
+        }
         return true
     }
     
@@ -209,7 +213,7 @@ class TransputInputController: IMKInputController {
         self.client().setMarkedText(text, selectionRange: .notFound, replacementRange: .notFound)
         self.candidatesWindow.update()
         if self.candidateArray.isEmpty {
-            self.candidatesWindow.hide()
+            hideCadidatesWindow()
             if text.containsChineseCharacters {
                 //获取标记文本末尾的位置
                 showPanel()
@@ -219,19 +223,61 @@ class TransputInputController: IMKInputController {
             return
         }
         hidePanel()
-        self.candidatesWindow.show()
+        showCadidatesWindow()
     }
     
     @objc func buttonClicked(_ sender: NSButton) {
         os_log(.info, log: log, "点击翻译")
+        let content = composingText.joined()
         // 处理按钮点击事件
-        translater.translate(composingText.joined(), completion: {response in
-            self.commitText(response)
-        })
+        switch ConfigModel.shared.modelType {
+        case .tongyi:
+            TongyiQianWen(apiKey: ConfigModel.shared.apiKey).translate(content, completion: {response in
+                self.commitText(response)
+            }, defaultHandler: { () in self.commitText(content) })
+        default:
+            os_log(.info, log: log, "未知模型，提交当前内容")
+            self.commitText(content)
+        }
     }
     
     
+    func showCadidatesWindow() {
+        if Thread.isMainThread {
+            self.candidatesWindow.show()
+        } else {
+            DispatchQueue.main.async {
+                self.candidatesWindow.show()
+            }
+        }
+    }
+    
+    func hideCadidatesWindow() {
+        if Thread.isMainThread {
+            self.candidatesWindow.hide()
+        } else {
+            DispatchQueue.main.async {
+                self.candidatesWindow.hide()
+            }
+        }
+    }
+
+    
     func showPanel() {
+        if Thread.isMainThread {
+            doShowPanel()
+        } else {
+            DispatchQueue.main.async {
+                self.doShowPanel()
+            }
+        }
+    }
+    
+    
+    func doShowPanel() {
+        if !ConfigModel.shared.useAITrans {
+            return
+        }
         var inputPos = NSRect()
         let attr = self.client().attributes(forCharacterIndex: 0, lineHeightRectangle: &inputPos)
         var heigthOffset: CGFloat = 26
@@ -247,11 +293,15 @@ class TransputInputController: IMKInputController {
         }
         os_log(.info, log: log, "显示翻译按钮, x: %{public}.1f, y: %{public}.1f, width: %{public}.1f, height: %{public}.1f",
                inputPos.minX, inputPos.minY, 100, 26)
-        transPanel.setFrame(inputPos, display: false)
-        transPanel.orderFront(nil)
+        self.transPanel.setFrame(inputPos, display: false)
+        self.transPanel.orderFront(nil)
     }
     
+    
     func hidePanel() {
+        if !ConfigModel.shared.useAITrans {
+            return
+        }
         os_log(.info, log: log, "隐藏翻译按钮")
         if Thread.isMainThread {
             self.transPanel.orderOut(nil)
@@ -265,9 +315,9 @@ class TransputInputController: IMKInputController {
     
     
     override func activateServer(_ sender: Any!) {
-//        super.activateServer(sender)
+        super.activateServer(sender)
         os_log(.info, log: log, "启用输入法")
-        self.candidatesWindow.hide()
+        hideCadidatesWindow()
         hidePanel()
         composingText.clear()
         candidateArray.removeAll()
@@ -281,18 +331,44 @@ class TransputInputController: IMKInputController {
     }
     
     override func deactivateServer(_ sender: Any!) {
-        os_log(.info, log: log, "停用输入法")
+        os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
         commitText(composingText.joined())
         hidePanel()
     }
     
     func commitText(_ content: String) {
         self.hidePanel()
-        self.client().insertText(content, replacementRange: .empty)
+        if let client = self.client() {
+            client.insertText(content, replacementRange: .empty)
+        } else {
+            os_log(.info, log: log, "无法提交剩余的标记文本")
+        }
         self.composingText.clear()
         self.candidateArray.removeAll()
+        hideCadidatesWindow()
     }
     
+    
+    override func menu() -> NSMenu! {
+        let settings = NSMenuItem(title: NSLocalizedString("Settings", comment: "Menu item"), action: #selector(showConfigWindow), keyEquivalent: "`")
+        settings.target = self
+
+        let menu = NSMenu()
+        menu.addItem(settings)
+        return menu
+    }
+    
+    @objc func showConfigWindow() {
+        if let appDelegae = NSApplication.shared.delegate as? AppDelegate, let cfgWindow = appDelegae.cfgWindow {
+            if Thread.isMainThread {
+                cfgWindow.orderFront(nil)
+            } else {
+                DispatchQueue.main.async {
+                    cfgWindow.orderFront(nil)
+                }
+            }
+        }
+    }
     
 }
 

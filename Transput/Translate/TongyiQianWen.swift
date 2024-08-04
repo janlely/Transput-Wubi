@@ -10,12 +10,16 @@ import os.log
 
 class TongyiQianWen: Translater {
     
-    var apiKey: String = "sk-1d2b610c1ffe4c79b1da58c5f5530a11"
+    var apiKey: String
     var url: String = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     
-    func translate(_ content: String, completion: @escaping (String) -> Void) {
+    init(apiKey: String) {
+        self.apiKey = apiKey
+    }
+    
+    func translate(_ content: String, completion: @escaping (String) -> Void, defaultHandler: @escaping () -> Void) {
         let request = ChatRequest(model: "qwen-turbo", messages: [
-            ChatRequest.Message(role: "system", content: "你是一个中文到英文的翻译，你把我的所有问题中的内容都直接翻译成英文就可以"),
+            ChatRequest.Message(role: "system", content: "You are a professional Chinese to English tranlstaor.For each subsequent question, you must provide the translation directly."),
             ChatRequest.Message(role: "user", content: content),
         ])
         
@@ -31,16 +35,18 @@ class TongyiQianWen: Translater {
                 do {
                     guard let response = response, err == nil else {
                         os_log(.info, log: log, "错误的响应: %{public}s", err!.localizedDescription)
+                        defaultHandler()
                         return
                     }
                     let result = try JSONDecoder().decode(ChatCompletionResponse.self, from: response)
-                    completion(result.choices[0].message.content)
+                    completion(result.choices[0].message.content.trimmingCharacters(in: CharacterSet(["\""])))
                 } catch {
+                    defaultHandler()
                     os_log(.info, log: log, "未知错误: %{public}s", error.localizedDescription)
                 }
             })
-            NSLog("ddd")
         } catch {
+            defaultHandler()
             print("Error decoding JSON: \(error)")
         }
         
