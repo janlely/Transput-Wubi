@@ -1,5 +1,7 @@
 # Transput
 
+一个支持AI翻译的输入法，目前只支持五笔，基础框架fork自[Typut](https://github.com/ensan-hcl/Typut)
+
 This is a sample implementation of the IMKit App with Swift 5.10.
 
 ## Working Environment
@@ -9,21 +11,4 @@ Checked in March 2024.
 * Swift 5.10
 * Xcode 15.3
 
-## Development
 
-The following command will produce `./build` directory.
-
-```bash
-xcodebuild
-```
-
-You can copy and paste `./build/Release/Transput.app` to `~/Library/Input Methods` and re-login in your Mac. It will enable Transput IM. You can choose Transput from input source list.
-
-## Reference
-
-Thanks to authors!!
-
-* https://mzp.hatenablog.com/entry/2017/09/17/220320
-* https://www.logcg.com/en/archives/2078.html
-* https://stackoverflow.com/questions/27813151/how-to-develop-a-simple-input-method-for-mac-os-x-in-swift
-* [日本語入力を作るときに必要だった本](https://mzp.booth.pm/items/809262) (A book I needed to create Japanese Input Method)
