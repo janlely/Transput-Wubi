@@ -11,7 +11,7 @@ Checked in March 2024.
 * Xcode 15.3
 
 ## 设置AI翻译
-[](./menu.png)
-[](./menu-window.png)
+![image](./menu.png)
+![image](./menu-window.png)
 
 
