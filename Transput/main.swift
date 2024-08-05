@@ -10,7 +10,7 @@ import Foundation
 
 import Cocoa
 import os.log
-let log = OSLog(subsystem: "com.ensan.inputmethod.Transput", category: "inputmethod")
+let log = OSLog(subsystem: "com.janlely.inputmethod.Transput", category: "inputmethod")
 
 let delegate = AppDelegate()
 NSApplication.shared.delegate = delegate
