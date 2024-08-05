@@ -54,9 +54,6 @@
                                 </items>
                             </menu>
                         </popUpButtonCell>
-                        <connections>
-                            <action selector="modelSelected:" target="82B-qZ-eMo" id="CuF-YH-ycI"/>
-                        </connections>
                     </popUpButton>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QHN-hv-UMC">
                         <rect key="frame" x="116" y="103" width="50" height="16"/>

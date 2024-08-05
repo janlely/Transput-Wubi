@@ -15,7 +15,6 @@
 		1A41E64726E74937009B65D7 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 1A41E64626E74937009B65D7 /* main.tiff */; };
 		55A9C54B2BA847A1007F6F02 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 55A9C54A2BA847A1007F6F02 /* main@2x.tiff */; };
 		E5207A222C5F849A00D78D7A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A212C5F849A00D78D7A /* main.swift */; };
-		E5207A362C5F8C2100D78D7A /* ComposingText.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A232C5F8C2100D78D7A /* ComposingText.swift */; };
 		E5207A372C5F8C2100D78D7A /* TransputInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A242C5F8C2100D78D7A /* TransputInputController.swift */; };
 		E5207A392C5F8C2100D78D7A /* ConfigWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A272C5F8C2100D78D7A /* ConfigWindowController.swift */; };
 		E5207A3A2C5F8C2100D78D7A /* preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = E5207A282C5F8C2100D78D7A /* preferences.xib */; };
@@ -27,6 +26,8 @@
 		E5207A402C5F8C2100D78D7A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5207A312C5F8C2100D78D7A /* Preview Assets.xcassets */; };
 		E5207A412C5F8C2100D78D7A /* ConfigModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A332C5F8C2100D78D7A /* ConfigModel.swift */; };
 		E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A342C5F8C2100D78D7A /* NSRange.swift */; };
+		E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A432C6053B500D78D7A /* InputEnums.swift */; };
+		E5207A462C60671000D78D7A /* InputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A452C60671000D78D7A /* InputHandler.swift */; };
 		E54BE42F2C5B724B00727221 /* wubi86_jidian.dict in Resources */ = {isa = PBXBuildFile; fileRef = E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */; };
 		E5CAE5712C58910C00A0BA4C /* icons8-loading-24.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5702C58910C00A0BA4C /* icons8-loading-24.png */; };
 		E5CAE5732C58914200A0BA4C /* icons8-t-26.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CAE5722C58914200A0BA4C /* icons8-t-26.png */; };
@@ -64,7 +65,6 @@
 		1A41E64826E7495A009B65D7 /* Transput.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Transput.entitlements; sourceTree = "<group>"; };
 		55A9C54A2BA847A1007F6F02 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		E5207A212C5F849A00D78D7A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		E5207A232C5F8C2100D78D7A /* ComposingText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposingText.swift; sourceTree = "<group>"; };
 		E5207A242C5F8C2100D78D7A /* TransputInputController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransputInputController.swift; sourceTree = "<group>"; };
 		E5207A272C5F8C2100D78D7A /* ConfigWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigWindowController.swift; sourceTree = "<group>"; };
 		E5207A282C5F8C2100D78D7A /* preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = preferences.xib; sourceTree = "<group>"; };
@@ -76,6 +76,8 @@
 		E5207A312C5F8C2100D78D7A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E5207A332C5F8C2100D78D7A /* ConfigModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigModel.swift; sourceTree = "<group>"; };
 		E5207A342C5F8C2100D78D7A /* NSRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSRange.swift; sourceTree = "<group>"; };
+		E5207A432C6053B500D78D7A /* InputEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEnums.swift; sourceTree = "<group>"; };
+		E5207A452C60671000D78D7A /* InputHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHandler.swift; sourceTree = "<group>"; };
 		E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = wubi86_jidian.dict; sourceTree = SOURCE_ROOT; };
 		E5CAE5702C58910C00A0BA4C /* icons8-loading-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icons8-loading-24.png"; path = "../../Downloads/icons8-loading-24.png"; sourceTree = "<group>"; };
 		E5CAE5722C58914200A0BA4C /* icons8-t-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icons8-t-26.png"; path = "../../Downloads/icons8-t-26.png"; sourceTree = "<group>"; };
@@ -172,8 +174,9 @@
 		E5207A252C5F8C2100D78D7A /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				E5207A232C5F8C2100D78D7A /* ComposingText.swift */,
 				E5207A242C5F8C2100D78D7A /* TransputInputController.swift */,
+				E5207A432C6053B500D78D7A /* InputEnums.swift */,
+				E5207A452C60671000D78D7A /* InputHandler.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -360,6 +363,7 @@
 			files = (
 				1A41E64226E74627009B65D7 /* AppDelegate.swift in Sources */,
 				E5207A392C5F8C2100D78D7A /* ConfigWindowController.swift in Sources */,
+				E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */,
 				E5207A3C2C5F8C2100D78D7A /* HttpClient.swift in Sources */,
 				E5207A3D2C5F8C2100D78D7A /* Trie.swift in Sources */,
 				E5207A372C5F8C2100D78D7A /* TransputInputController.swift in Sources */,
@@ -367,9 +371,9 @@
 				E5207A3F2C5F8C2100D78D7A /* Translater.swift in Sources */,
 				E5207A3E2C5F8C2100D78D7A /* TongyiQianWen.swift in Sources */,
 				E5207A412C5F8C2100D78D7A /* ConfigModel.swift in Sources */,
-				E5207A362C5F8C2100D78D7A /* ComposingText.swift in Sources */,
 				E5207A3B2C5F8C2100D78D7A /* CommonUtils.swift in Sources */,
 				E5207A222C5F849A00D78D7A /* main.swift in Sources */,
+				E5207A462C60671000D78D7A /* InputHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,15 +606,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5Y5653L4HB;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ensan.inputmethod.TransputTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.janlely.inputmethod.TransputTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -626,15 +631,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5Y5653L4HB;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ensan.inputmethod.TransputTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.janlely.inputmethod.TransputTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;

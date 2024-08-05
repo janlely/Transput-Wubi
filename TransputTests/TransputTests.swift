@@ -21,22 +21,77 @@ class TransputTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-        guard let root = Trie.loadFromText("wubi86_jidian.dict") else {
-            throw InputError.errorLoadDict
-        }
-        let composingText = ComposingText(4)
+        let inputHandler = InputHandler()
+        inputHandler.loadDict()
         
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        var text = inputHandler.getCompsingText()
+        assert(text == "a")
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "aa")
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "aaa")
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "aaaa")
+        let _ = inputHandler.makeCadidates()
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        assert(inputHandler.getCompsingText() == "工a")
+        
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(inputHandler.getCompsingText() == "aaaa")
+
+        let _ = inputHandler.makeCadidates()
+        let _ = inputHandler.handlerInput(.space)
+        assert(inputHandler.getCompsingText() == "工")
+
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(text == "")
+
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "a")
+
+        let _ = inputHandler.handlerInput(.space)
+        text = inputHandler.getCompsingText()
+        assert(text == "工")
+        
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "工a")
+
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(text == "工")
+        
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(text == "")
+
+        
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "a")
+
+        let _ = inputHandler.handlerInput(.space)
+        text = inputHandler.getCompsingText()
+        assert(text == "工")
+        
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
+        text = inputHandler.getCompsingText()
+        assert(text == "工a")
+
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(text == "工")
+        
+        let _ = inputHandler.handlerInput(.backspace)
+        text = inputHandler.getCompsingText()
+        assert(text == "")
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
-    
-    func simulateInput(_ char: Character) {
-        
-    }
 }

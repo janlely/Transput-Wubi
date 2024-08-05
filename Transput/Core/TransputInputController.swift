@@ -15,12 +15,11 @@ class TransputInputController: IMKInputController {
     
     
     private var candidatesWindow: IMKCandidates
-    private var composingText: ComposingText = ComposingText(4) //五笔最长是4个编码
-    private var candidateArray: [String]! = []
     private var transPanel: NSPanel!
     private var transBtn: NSButton!
-    private var wubiDict: TrieNode!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
+    private var inputHanlder: InputHandler = InputHandler()
+    private var lastModifiers: NSEvent.ModifierFlags = .init()
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
@@ -78,6 +77,10 @@ class TransputInputController: IMKInputController {
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         
+        let modifiers = event.modifierFlags
+        let changes = lastModifiers.symmetricDifference(modifiers)
+        lastModifiers = modifiers
+
         os_log(.info, log: log, "handle,进行输入处理程序")
         if !(sender is IMKTextInput) {
             os_log(.error, log: log, "sender不是IMKTextInput")
@@ -88,6 +91,9 @@ class TransputInputController: IMKInputController {
         case .flagsChanged:
             //TODO: 处理特殊按键事件
             os_log(.info, log: log, "特殊按键被按下")
+            if changes.contains(.capsLock) {
+                os_log(.info, log: log, "CapsLock pushed")
+            }
             return true
         case .keyDown:
             return handlerKeyDown(event)
@@ -114,13 +120,13 @@ class TransputInputController: IMKInputController {
         switch event.keyCode {
         case 51: //backspace
             os_log(.info, log: log, "handler,处理退格")
-            return handlerBackspace()
+            return handlerInput(.backspace)
         case 49: //Space
             os_log(.info, log: log, "handler,处理空格")
-            return composingText.isEmpty() ? false : handlerSpace()
+            return handlerInput(.space)
         case 36: //Enter
             os_log(.info, log: log, "handler,处理回车")
-            return handlerEnter()
+            return handlerInput(.enter)
         default:
             os_log(.info, log: log, "handler,处理其他字符")
             guard let text = event.characters,
@@ -129,90 +135,62 @@ class TransputInputController: IMKInputController {
                 return false
             }
             //跳过非小写字线开头的输入
-            if !text.allSatisfy({$0.isLetter && $0.isLowercase}) && composingText.isEmpty() {
-                os_log(.info, log: log, "非小写字母开头的跳过")
-                self.client().insertText(String(convertPunctuation(text.first!)), replacementRange: .empty)
-                return true
+            guard let char = text.first else {
+                os_log(.info, log: log, "不支持的按键2: %{public}d", event.keyCode)
+                return false
             }
-            os_log(.info, log: log, "handler,处理字母、数字、标点、符号")
-            return handlerInput(text.first!)
+            if char.isLowercase {
+                return handlerInput(.lower(char: char))
+            }
+            if char.isNumber {
+                return handlerInput(.number(num: char))
+            }
+            return handlerInput(.other(char: char))
+        }
+    }
+    
+    func handlerInput(_ charType: CharType) -> Bool {
+        switch self.inputHanlder.handlerInput(charType) {
+        case .commit(let content):
+            self.commitText(content)
+            self.inputHanlder.clear()
+            return true
+        case .conditionalCommit(let content):
+            if ConfigModel.shared.useAITrans {
+                self.setMarkedText(content)
+            } else {
+                self.commitText(content)
+            }
+            return true
+        case .continute(let content):
+            self.setMarkedText(content)
+            return true
+        case .ignore:
+            return false
         }
     }
     
     
     override func candidates(_ sender: Any!) -> [Any]! {
         os_log(.info, log: log, "生成候选词")
-        self.candidateArray = makeCandidates(sender)
-        return candidateArray
+        return self.inputHanlder.makeCadidates()
     }
 
     override func candidateSelected(_ candidateString: NSAttributedString!) {
         os_log(.info, log: log, "选择候选词: %s", candidateString.string)
-        composingText.select(candidateString.string)
-        os_log(.info, log: log, "标记用户输入: %s", composingText.joined())
+        let content = self.inputHanlder.select(candidateString.string)
+        os_log(.info, log: log, "标记用户输入: %s", content)
         hideCadidatesWindow()
-        setMarkedText(composingText.joined())
+        setMarkedText(content)
     }
     
     
-    func handlerBackspace() -> Bool {
-        let result = composingText.handlerBackspace()
-        setMarkedText(composingText.joined())
-        return result
-    }
-    
-    func handlerSpace() -> Bool {
-        if !candidateArray.isEmpty {
-            os_log(.info, log: log, "候选词不为空，选择第一个候选词")
-            return handlerInput("1")
-        }
-        os_log(.info, log: log, "候选词为空，插入一个空格")
-        return handlerInput(" ")
-    }
-    
-    func handlerEnter() -> Bool {
-        os_log(.info, log: log, "client.lenght: %{public}d", self.client().length())
-        let text = composingText.joined()
-        if composingText.isEmpty() || text.isEmpty {
-            return false
-        }
-        os_log(.info, log: log, "输入回车，提交输入到系统")
-        commitText(text)
-        hidePanel()
-        hideCadidatesWindow()
-        return true
-    }
-    
-    func handlerInput(_ char: Character) -> Bool {
-        os_log(.info, log: log, "handlerInput, 处理用户输入")
-        let needCommit = composingText.input(char, self.candidateArray)
-        let joined = composingText.joined()
-        os_log(.info, log: log, "handlerInput, 设置标记: %{public}s", joined)
-        if needCommit {
-            commitText(joined)
-        } else {
-            setMarkedText(joined)
-        }
-        return true
-    }
-    
-    func makeCandidates(_ sender: Any!) -> [String]! {
-        guard let base = composingText.last() else {
-            return []
-        }
-        if base.count <= 0 {
-            os_log(.info, "makeCandidates,输入为空，返回空的候选词")
-            return []
-        }
-        os_log(.info, log: log, "makeCandidates,从Trie中搜索候选词, base: %{public}s", base)
-        return Trie.search(root: wubiDict, code: base)
-    }
     
     func setMarkedText(_ text: String) {
         os_log(.info, log: log, "marked text: #%{public}s#", text)
         self.client().setMarkedText(text, selectionRange: .notFound, replacementRange: .notFound)
         self.candidatesWindow.update()
-        if self.candidateArray.isEmpty {
+        if !self.inputHanlder.hasCadidates() {
             hideCadidatesWindow()
             if text.containsChineseCharacters {
                 //获取标记文本末尾的位置
@@ -228,7 +206,7 @@ class TransputInputController: IMKInputController {
     
     @objc func buttonClicked(_ sender: NSButton) {
         os_log(.info, log: log, "点击翻译")
-        let content = composingText.joined()
+        let content = self.inputHanlder.getCompsingText()
         // 处理按钮点击事件
         switch ConfigModel.shared.modelType {
         case .tongyi:
@@ -319,20 +297,19 @@ class TransputInputController: IMKInputController {
         os_log(.info, log: log, "启用输入法")
         hideCadidatesWindow()
         hidePanel()
-        composingText.clear()
-        candidateArray.removeAll()
-        if wubiDict != nil {
+        self.inputHanlder.clear()
+        if self.inputHanlder.dictLoaded() {
             os_log(.info, log: log, "字典已加载，无需重复加载")
             return
         }
         os_log(.info, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
-        wubiDict = Trie.loadFromText("wubi86_jidian.dict")
+        self.inputHanlder.loadDict()
         os_log(.info, log: log, "wubi loaded: \(Date().timeIntervalSince1970)")
     }
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
-        commitText(composingText.joined())
+        commitText(self.inputHanlder.getCompsingText())
         hidePanel()
     }
     
@@ -343,8 +320,7 @@ class TransputInputController: IMKInputController {
         } else {
             os_log(.info, log: log, "无法提交剩余的标记文本")
         }
-        self.composingText.clear()
-        self.candidateArray.removeAll()
+        self.inputHanlder.clear()
         hideCadidatesWindow()
     }
     
