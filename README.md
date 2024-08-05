@@ -10,4 +10,8 @@ Checked in March 2024.
 * Swift 5.10
 * Xcode 15.3
 
+## 设置AI翻译
+[](./menu.png)
+[](./menu-window.png)
+
 
