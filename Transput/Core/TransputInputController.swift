@@ -131,7 +131,7 @@ class TransputInputController: IMKInputController {
             //跳过非小写字线开头的输入
             if !text.allSatisfy({$0.isLetter && $0.isLowercase}) && composingText.isEmpty() {
                 os_log(.info, log: log, "非小写字母开头的跳过")
-                self.client().insertText(convertPunctuation(text.first!), replacementRange: .empty)
+                self.client().insertText(String(convertPunctuation(text.first!)), replacementRange: .empty)
                 return true
             }
             os_log(.info, log: log, "handler,处理字母、数字、标点、符号")
