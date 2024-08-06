@@ -20,12 +20,17 @@ class TransputInputController: IMKInputController {
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
     private var inputHanlder: InputHandler = InputHandler()
     private var lastModifiers: NSEvent.ModifierFlags = .init()
+    private var enabled: Bool = true
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
         self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         initTransPanel()
+        
+        os_log(.info, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
+        self.inputHanlder.loadDict()
+        os_log(.info, log: log, "wubi loaded: \(Date().timeIntervalSince1970)")
     }
     
     func initTransPanel() {
@@ -79,7 +84,6 @@ class TransputInputController: IMKInputController {
         
         let modifiers = event.modifierFlags
         let changes = lastModifiers.symmetricDifference(modifiers)
-        lastModifiers = modifiers
 
         os_log(.info, log: log, "handle,进行输入处理程序")
         if !(sender is IMKTextInput) {
@@ -90,11 +94,16 @@ class TransputInputController: IMKInputController {
         switch event.type {
         case .flagsChanged:
             //TODO: 处理特殊按键事件
+            lastModifiers = modifiers
             os_log(.info, log: log, "特殊按键被按下")
-            if changes.contains(.capsLock) {
-                os_log(.info, log: log, "CapsLock pushed")
+            if changes.contains(.shift) && modifiers.contains(.shift) {
+                os_log(.info, log: log, "shift pushed")
+                enabled.toggle()
+                os_log(.info, log: log, "enabled: %{public}s", enabled ? "YES" : "NO")
+                self.commitText(self.inputHanlder.getCompsingText())
+                return true
             }
-            return true
+            return false
         case .keyDown:
             return handlerKeyDown(event)
         default:
@@ -105,8 +114,12 @@ class TransputInputController: IMKInputController {
     
     func handlerKeyDown(_ event: NSEvent!) -> Bool {
         
-        os_log(.info, log: log, "handle,开始进行输入处理")
-        
+        os_log(.info, log: log, "handle,开始进行输入处理, enabled: %{public}s", enabled ? "YES" : "NO")
+        if !enabled {
+            os_log(.debug, log: log, "not enabled")
+            return false
+        }
+
         //忽略所有的组合键
         let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         // 如果有任何修饰键被按下，就忽略这个事件
@@ -116,6 +129,7 @@ class TransputInputController: IMKInputController {
             os_log(.info, log: log, "忽略组合键")
             return false
         }
+        
 
         switch event.keyCode {
         case 51: //backspace
@@ -135,10 +149,11 @@ class TransputInputController: IMKInputController {
                 return false
             }
             //跳过非小写字线开头的输入
-            guard let char = text.first else {
+            guard let ch = text.first else {
                 os_log(.info, log: log, "不支持的按键2: %{public}d", event.keyCode)
                 return false
             }
+            let char = convertPunctuation(ch)
             if char.isLowercase {
                 return handlerInput(.lower(char: char))
             }
@@ -191,6 +206,7 @@ class TransputInputController: IMKInputController {
         self.client().setMarkedText(text, selectionRange: .notFound, replacementRange: .notFound)
         self.candidatesWindow.update()
         if !self.inputHanlder.hasCadidates() {
+            os_log(.info, log: log, "候选词列表为空")
             hideCadidatesWindow()
             if text.containsChineseCharacters {
                 //获取标记文本末尾的位置
@@ -298,13 +314,6 @@ class TransputInputController: IMKInputController {
         hideCadidatesWindow()
         hidePanel()
         self.inputHanlder.clear()
-        if self.inputHanlder.dictLoaded() {
-            os_log(.info, log: log, "字典已加载，无需重复加载")
-            return
-        }
-        os_log(.info, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
-        self.inputHanlder.loadDict()
-        os_log(.info, log: log, "wubi loaded: \(Date().timeIntervalSince1970)")
     }
     
     override func deactivateServer(_ sender: Any!) {
@@ -346,6 +355,11 @@ class TransputInputController: IMKInputController {
         }
     }
     
+    
+    override func recognizedEvents(_ sender: Any!) -> Int {
+        os_log(.debug, log: log, "recognizedEvents")
+        return Int(NSEvent.EventTypeMask.Element(arrayLiteral: .keyDown, .flagsChanged).rawValue)
+    }
 }
 
 

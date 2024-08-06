@@ -43,6 +43,7 @@ class InputHandler {
     }
     
     func hasCadidates() -> Bool {
+        os_log(.info, log: log, "候选词: %{public}s", self.cadidatesArray.joined(separator: ","))
         return !self.cadidatesArray.isEmpty
     }
     
@@ -54,10 +55,13 @@ class InputHandler {
     
     func makeCadidates() -> [String] {
         guard let base = self.composingArray.last else {
+            os_log(.info, log: log, "makeCandidates,输入为空，返回空的候选词")
+            self.cadidatesArray = []
             return []
         }
         if base.count <= 0 {
-            os_log(.info, "makeCandidates,输入为空，返回空的候选词")
+            os_log(.info, log: log, "makeCandidates,输入为空，返回空的候选词")
+            self.cadidatesArray = []
             return []
         }
         os_log(.info, log: log, "makeCandidates,从Trie中搜索候选词, base: %{public}s", base)
@@ -81,6 +85,11 @@ class InputHandler {
                 doInput(char)
                 self.state = .inputing
                 return .done
+            case .other(let char):
+                addUnit()
+                doInput(char)
+                self.state = .inputing
+                return .commit
             default:
                 return .ignore
             }
