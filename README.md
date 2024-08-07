@@ -13,6 +13,18 @@ Checked in March 2024.
 ## 使用指南
 ![image](./show.gif)
 
+## 本地安装
 
+* build
+```bash
+
+xcodebuild
+
+cp -r build/Release/Transput.app ~/Library/Input\ Methods/
+```
+
+* 注销当前用户
+
+* 在系统输入法设置中添加Transput
 
 
