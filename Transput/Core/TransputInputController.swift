@@ -19,8 +19,8 @@ class TransputInputController: IMKInputController {
     private var transBtn: NSButton!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
     private var inputHanlder: InputHandler = InputHandler()
-    private var lastModifiers: NSEvent.ModifierFlags = .init()
-    private var enabled: Bool = true
+//    private var lastModifiers: NSEvent.ModifierFlags = .init()
+//    private var enabled: Bool = true
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
@@ -82,8 +82,8 @@ class TransputInputController: IMKInputController {
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         
-        let modifiers = event.modifierFlags
-        let changes = lastModifiers.symmetricDifference(modifiers)
+//        let modifiers = event.modifierFlags
+//        let changes = lastModifiers.symmetricDifference(modifiers)
 
         os_log(.info, log: log, "handle,进行输入处理程序")
         if !(sender is IMKTextInput) {
@@ -93,16 +93,15 @@ class TransputInputController: IMKInputController {
         
         switch event.type {
         case .flagsChanged:
-            //TODO: 处理特殊按键事件
-            lastModifiers = modifiers
-            os_log(.info, log: log, "特殊按键被按下")
-            if changes.contains(.shift) && modifiers.contains(.shift) {
-                os_log(.info, log: log, "shift pushed")
-                enabled.toggle()
-                os_log(.info, log: log, "enabled: %{public}s", enabled ? "YES" : "NO")
-                self.commitText(self.inputHanlder.getCompsingText())
-                return true
-            }
+//            lastModifiers = modifiers
+//            os_log(.info, log: log, "特殊按键被按下")
+//            if modifiers.contains(.shift) {
+//                os_log(.info, log: log, "shift pushed")
+//                enabled.toggle()
+//                os_log(.info, log: log, "enabled: %{public}s", enabled ? "YES" : "NO")
+//                self.commitText(self.inputHanlder.getCompsingText())
+//                return true
+//            }
             return false
         case .keyDown:
             return handlerKeyDown(event)
@@ -114,11 +113,7 @@ class TransputInputController: IMKInputController {
     
     func handlerKeyDown(_ event: NSEvent!) -> Bool {
         
-        os_log(.info, log: log, "handle,开始进行输入处理, enabled: %{public}s", enabled ? "YES" : "NO")
-        if !enabled {
-            os_log(.debug, log: log, "not enabled")
-            return false
-        }
+        os_log(.info, log: log, "handle,开始进行输入处理")
 
         //忽略所有的组合键
         let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
@@ -129,7 +124,6 @@ class TransputInputController: IMKInputController {
             os_log(.info, log: log, "忽略组合键")
             return false
         }
-        
 
         switch event.keyCode {
         case 51: //backspace
