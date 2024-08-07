@@ -11,7 +11,7 @@ Checked in March 2024.
 * Xcode 15.3
 
 ## 使用指南
-![image](./output.gif)
+![image](./show.gif)
 
 
 
