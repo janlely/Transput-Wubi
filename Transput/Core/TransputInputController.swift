@@ -159,19 +159,21 @@ class TransputInputController: IMKInputController {
     }
     
     func handlerInput(_ charType: CharType) -> Bool {
-        switch self.inputHanlder.handlerInput(charType) {
-        case .commit(let content):
+        let inputResult = self.inputHanlder.handlerInput(charType)
+        let content = self.inputHanlder.getCompsingText()
+        switch inputResult {
+        case .commit:
             self.commitText(content)
             self.inputHanlder.clear()
             return true
-        case .conditionalCommit(let content):
+        case .conditionalCommit:
             if ConfigModel.shared.useAITrans {
                 self.setMarkedText(content)
             } else {
                 self.commitText(content)
             }
             return true
-        case .continute(let content):
+        case .continute:
             self.setMarkedText(content)
             return true
         case .ignore:

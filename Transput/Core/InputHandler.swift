@@ -18,16 +18,16 @@ class InputHandler {
     private var wubiDict: TrieNode! //五笔词库
     
     func handlerInput(_ charType: CharType) -> InputResult {
-        switch doHandlerInput(charType) {
-        case .ignore:
-            return .ignore
-        case .conditionalCommit:
-            return .conditionalCommit(content: self.composingArray.joined())
-        case .commit:
-            return .commit(content: self.composingArray.joined())
-        case .done:
-            return .continute(content: self.composingArray.joined())
-        }
+        return doHandlerInput(charType)
+//        case .ignore:
+//            return .ignore
+//        case .conditionalCommit:
+//            return .conditionalCommit(content: self.composingArray.joined())
+//        case .commit:
+//            return .commit(content: self.composingArray.joined())
+//        case .done:
+//            return .continute(content: self.composingArray.joined())
+//        }
     }
     
     func dictLoaded() -> Bool {
@@ -76,7 +76,7 @@ class InputHandler {
         self.state = .start
     }
     
-    private func doHandlerInput(_ charType: CharType) -> InnerResult {
+    private func doHandlerInput(_ charType: CharType) -> InputResult {
         switch state {
         case .start:
             switch charType {
@@ -84,7 +84,7 @@ class InputHandler {
                 addUnit()
                 doInput(char, false)
                 self.state = .inputing
-                return .done
+                return .continute
             case .other(let char):
                 addUnit()
                 doInput(char, true)
@@ -101,7 +101,7 @@ class InputHandler {
                     return doHandlerInput(charType)
                 }
                 doInput(char, false)
-                return .done
+                return .continute
             case .other(let char):
                 self.state = .autoSelecting
                 return doHandlerInput(charType)
@@ -111,7 +111,7 @@ class InputHandler {
             case .backspace:
                 let back = back()
                 if !back {
-                    return .done
+                    return .continute
                 }
                 if self.composingArray.isEmpty {
                     self.state = .start
@@ -124,7 +124,7 @@ class InputHandler {
                         self.state = .inputing
                     }
                 }
-                return .done
+                return .continute
             case .enter:
                 self.state = .start
                 return .commit
@@ -138,7 +138,7 @@ class InputHandler {
                 addUnit()
                 doInput(char, false)
                 self.state = .inputing
-                return .done
+                return .continute
             case .other(let char):
                 if !self.cadidatesArray.isEmpty {
                     doSelect(0, true)
@@ -168,7 +168,7 @@ class InputHandler {
                 addUnit()
                 doInput(char, true)
                 self.state = .start2
-                return .done
+                return .continute
             default:
                 os_log(.error, log: log, "manuallySelecting状态下charType不为space或者number")
                 return .commit
@@ -179,34 +179,34 @@ class InputHandler {
                 addUnit()
                 doInput(char, false)
                 self.state = .inputing
-                return .done
+                return .continute
             case .number(let char), .other(let char):
                 addUnit()
                 doInput(char, true)
                 self.state = .start2
-                return .done
+                return .continute
             case .space:
                 addUnit()
                 doInput(" ", true)
                 self.state = .inputing
-                return .done
+                return .continute
             case .backspace:
                 let back = back()
                 if !back {
-                    return .done
+                    return .continute
                 }
                 if self.composingArray.isEmpty {
                     self.state = .start
-                    return .done
+                    return .continute
                 }
                 let count = self.composingArray.count
                 if self.isLockedArray[count - 1] {
                     self.state = .start2
-                    return .done
+                    return .continute
                 }
                 self.unSelect()
                 self.state = .inputing
-                return .done
+                return .continute
             case .enter:
                 return .commit
             }
@@ -256,18 +256,18 @@ class InputHandler {
         }
     }
     
-    private enum InnerResult {
-        case ignore
-        case commit
-        case conditionalCommit
-        case done
-    }
+//    private enum InnerResult {
+//        case ignore //忽略输入，交由系统处理
+//        case commit //可以提交了
+//        case conditionalCommit //有条件的提交(未开启AI翻译则为提交)
+//        case done //当前输入处理完毕，等待处理后续输入
+//    }
     
 }
 
 enum InputResult {
-    case ignore
-    case commit(content: String)
-    case conditionalCommit(content: String)
-    case continute(content: String)
+    case ignore //忽略当前输入
+    case commit //可以提交了
+    case conditionalCommit //有条件的提交(未开启AI翻译则为提交)
+    case continute //当前输入处理完毕，等待处理后续输入
 }
