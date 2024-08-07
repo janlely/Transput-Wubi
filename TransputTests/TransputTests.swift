@@ -18,7 +18,7 @@ class TransputTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
+    func testExample1() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
         let inputHandler = InputHandler()
@@ -94,4 +94,25 @@ class TransputTests: XCTestCase {
         assert(text == "")
     }
 
+    
+    func testExample2() throws {
+        
+        let inputHandler = InputHandler()
+        inputHandler.loadDict()
+        
+        let _ = inputHandler.handlerInput(.lower(char: "w"))
+        var text = inputHandler.getCompsingText()
+        assert(text == "w")
+        
+        let _ = inputHandler.handlerInput(.lower(char: "q"))
+        text = inputHandler.getCompsingText()
+        assert(text == "wq")
+        
+        let _ = inputHandler.handlerInput(.other(char: "，"))
+        text = inputHandler.getCompsingText()
+        assert(text == "你，")
+        
+        
+
+    }
 }
