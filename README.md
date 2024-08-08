@@ -1,6 +1,6 @@
-# Transput
+# Transput-Wubi
 
-一个支持AI翻译的输入法，目前只支持五笔，基础框架fork自[Typut](https://github.com/ensan-hcl/Typut)
+一个支持AI翻译的五笔输入法，基础框架fork自[Typut](https://github.com/ensan-hcl/Typut)
 
 
 ## Working Environment
