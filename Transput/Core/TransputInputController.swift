@@ -16,11 +16,12 @@ class TransputInputController: IMKInputController {
     
     private var candidatesWindow: IMKCandidates
     private var transPanel: NSPanel!
+    private var inputModePanel: NSPanel!
     private var transBtn: NSButton!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
     private var inputHanlder: InputHandler = InputHandler()
-//    private var lastModifiers: NSEvent.ModifierFlags = .init()
-//    private var enabled: Bool = true
+    private var shiftIsDown: Bool = false
+    private var shiftPushedAlone: Bool = false
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
@@ -77,6 +78,24 @@ class TransputInputController: IMKInputController {
             transBtn.bottomAnchor.constraint(equalTo: transPanel.contentView!.bottomAnchor)
         ])
 
+        
+        inputModePanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
+                            styleMask: [.nonactivatingPanel],
+                            backing: .buffered,
+                            defer: false)
+        inputModePanel.level = .popUpMenu
+        // 设置窗口行为
+        inputModePanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        inputModePanel.isFloatingPanel = true
+        // 确保panel不会成为key window
+        inputModePanel.becomesKeyOnlyIfNeeded = true
+        // 设置内容视图
+        inputModePanel.contentView?.wantsLayer = true
+        inputModePanel.contentView?.layer?.cornerRadius = 10
+        inputModePanel.contentView?.layer?.backgroundColor = NSColor.red.cgColor
+        
+
+
     }
 
     
@@ -93,15 +112,25 @@ class TransputInputController: IMKInputController {
         
         switch event.type {
         case .flagsChanged:
-//            lastModifiers = modifiers
-//            os_log(.info, log: log, "特殊按键被按下")
-//            if modifiers.contains(.shift) {
-//                os_log(.info, log: log, "shift pushed")
-//                enabled.toggle()
-//                os_log(.info, log: log, "enabled: %{public}s", enabled ? "YES" : "NO")
-//                self.commitText(self.inputHanlder.getCompsingText())
-//                return true
-//            }
+            let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            //假设shift是单独被按下的
+            if modifiers.contains(.shift) && !modifiers.contains(.option)
+                && !modifiers.contains(.command) && !modifiers.contains(.control) {
+                os_log(.info, log: log, "shift按下")
+                shiftIsDown = true
+                shiftPushedAlone = true
+                return true
+            }
+            
+            if modifiers.rawValue == 0 {
+                //shift键抬起之前没有其他keyDown事件，说明shift是单独被按下的
+                if shiftPushedAlone && shiftIsDown {
+                    os_log(.info, log: log, "shift抬起，切换中/英文")
+                    self.inputHanlder.isEnMode.toggle()
+                }
+                shiftIsDown = false
+                return true
+            }
             return false
         case .keyDown:
             return handlerKeyDown(event)
@@ -115,7 +144,7 @@ class TransputInputController: IMKInputController {
         
         os_log(.info, log: log, "handle,开始进行输入处理")
 
-        //忽略所有的组合键
+        //忽略所有的command, option, control组合键
         let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         // 如果有任何修饰键被按下，就忽略这个事件
         if modifierFlags.contains(.command) ||
@@ -123,6 +152,11 @@ class TransputInputController: IMKInputController {
             modifierFlags.contains(.control) {
             os_log(.info, log: log, "忽略组合键")
             return false
+        }
+        
+        //说明shift不是单独按下的
+        if modifierFlags.contains(.shift) {
+            shiftPushedAlone = false
         }
 
         switch event.keyCode {
@@ -159,6 +193,11 @@ class TransputInputController: IMKInputController {
     }
     
     func handlerInput(_ charType: CharType) -> Bool {
+        //如果非AI模式，并且当前是英文状态，则直接提交之前的输入，并返回
+        if !ConfigModel.shared.useAITrans && self.inputHanlder.isEnMode {
+            self.commitText(self.inputHanlder.getCompsingText())
+            return false
+        }
         let inputResult = self.inputHanlder.handlerInput(charType)
         let content = self.inputHanlder.getCompsingText()
         switch inputResult {

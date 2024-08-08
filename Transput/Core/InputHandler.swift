@@ -16,19 +16,7 @@ class InputHandler {
     private var cadidatesArray: [String] = [] //当前候选词列表
     private var state: InputState = .start //当前的状态
     private var wubiDict: TrieNode! //五笔词库
-    
-    func handlerInput(_ charType: CharType) -> InputResult {
-        return doHandlerInput(charType)
-//        case .ignore:
-//            return .ignore
-//        case .conditionalCommit:
-//            return .conditionalCommit(content: self.composingArray.joined())
-//        case .commit:
-//            return .commit(content: self.composingArray.joined())
-//        case .done:
-//            return .continute(content: self.composingArray.joined())
-//        }
-    }
+    public var isEnMode: Bool = false
     
     func dictLoaded() -> Bool {
         return self.wubiDict != nil
@@ -54,6 +42,9 @@ class InputHandler {
     }
     
     func makeCadidates() -> [String] {
+        if isEnMode {
+            return []
+        }
         guard let base = self.composingArray.last else {
             os_log(.info, log: log, "makeCandidates,输入为空，返回空的候选词")
             self.cadidatesArray = []
@@ -76,20 +67,25 @@ class InputHandler {
         self.state = .start
     }
     
-    private func doHandlerInput(_ charType: CharType) -> InputResult {
+    public func handlerInput(_ charType: CharType) -> InputResult {
         switch state {
         case .start:
             switch charType {
             case .lower(let char): //小写字母 -> 添加一个空格 -> 输入字符 -> .inputing
                 addUnit()
-                doInput(char, false)
+                doInput(char, lock: false)
                 self.state = .inputing
                 return .continute
             case .other(let char):
                 addUnit()
-                doInput(char, true)
+                doInput(char, lock: true)
                 self.state = .inputing
                 return .commit
+            case .space:
+                addUnit()
+                doInput(" ", lock: true)
+                self.state = .start2
+                return .continute
             default:
                 return .ignore
             }
@@ -98,16 +94,16 @@ class InputHandler {
             case .lower(let char):
                 if hitLimit() {
                     self.state = .autoSelecting
-                    return doHandlerInput(charType)
+                    return handlerInput(charType)
                 }
-                doInput(char, false)
+                doInput(char, lock: false)
                 return .continute
             case .other(let char):
                 self.state = .autoSelecting
-                return doHandlerInput(charType)
+                return handlerInput(charType)
             case .space, .number:
                 self.state = .manuallySeleting
-                return doHandlerInput(charType)
+                return handlerInput(charType)
             case .backspace:
                 let back = back()
                 if !back {
@@ -136,7 +132,7 @@ class InputHandler {
                     doSelect(0, true)
                 }
                 addUnit()
-                doInput(char, false)
+                doInput(char, lock: false)
                 self.state = .inputing
                 return .continute
             case .other(let char):
@@ -144,7 +140,7 @@ class InputHandler {
                     doSelect(0, true)
                 }
                 addUnit()
-                doInput(char, true)
+                doInput(char, lock: true)
                 self.state = .start2
                 return .conditionalCommit
             default:
@@ -156,6 +152,9 @@ class InputHandler {
             case .space:
                 if !self.cadidatesArray.isEmpty {
                     doSelect(0, false)
+                } else {
+                    addUnit()
+                    doInput(" ", lock: true)
                 }
                 self.state = .start2
                 return .conditionalCommit
@@ -166,7 +165,7 @@ class InputHandler {
                     return .conditionalCommit
                 }
                 addUnit()
-                doInput(char, true)
+                doInput(char, lock: true)
                 self.state = .start2
                 return .continute
             default:
@@ -177,18 +176,18 @@ class InputHandler {
             switch charType {
             case .lower(let char): //小写字母 -> 添加一个空格 -> 输入字符 -> .inputing
                 addUnit()
-                doInput(char, false)
+                doInput(char, lock: false)
                 self.state = .inputing
                 return .continute
             case .number(let char), .other(let char):
                 addUnit()
-                doInput(char, true)
+                doInput(char, lock: true)
                 self.state = .start2
                 return .continute
             case .space:
                 addUnit()
-                doInput(" ", true)
-                self.state = .inputing
+                doInput(" ", lock: true)
+                self.state = .start2
                 return .continute
             case .backspace:
                 let back = back()
@@ -219,7 +218,7 @@ class InputHandler {
         self.isLockedArray.append(false)
     }
     
-    private func doInput(_ char: Character, _ lock: Bool) {
+    private func doInput(_ char: Character, lock: Bool) {
         let count = self.composingArray.count
         self.composingArray[count - 1].append(char)
         self.rawCodeArray[count - 1].append(char)
@@ -255,13 +254,6 @@ class InputHandler {
             self.isLockedArray[count - 1] = true
         }
     }
-    
-//    private enum InnerResult {
-//        case ignore //忽略输入，交由系统处理
-//        case commit //可以提交了
-//        case conditionalCommit //有条件的提交(未开启AI翻译则为提交)
-//        case done //当前输入处理完毕，等待处理后续输入
-//    }
     
 }
 
