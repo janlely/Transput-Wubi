@@ -363,25 +363,22 @@ class TransputInputController: IMKInputController {
     override func activateServer(_ sender: Any!) {
         super.activateServer(sender)
         os_log(.info, log: log, "启用输入法")
-        hideCadidatesWindow()
         hideTransPanel()
         self.inputHanlder.clear()
+        hidePalettes()
     }
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
         commitText(self.inputHanlder.getCompsingText())
-        hideCadidatesWindow()
+//        hideCadidatesWindow()
         hideTransPanel()
+        hidePalettes()
     }
     
     func commitText(_ content: String) {
         self.hideTransPanel()
-//        if let client = self.client() {
         self.client()?.insertText(content, replacementRange: .empty)
-//        } else {
-//            os_log(.info, log: log, "无法提交剩余的标记文本")
-//        }
         self.inputHanlder.clear()
         hideCadidatesWindow()
     }
