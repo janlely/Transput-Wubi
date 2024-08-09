@@ -11,7 +11,11 @@ Checked in March 2024.
 * Xcode 15.3
 
 ## 使用指南
+
+* AI翻译
 ![image](./show.gif)
+
+* 使用shift在输入法内切换中英文
 
 ## 本地安装
 
