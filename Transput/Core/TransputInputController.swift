@@ -370,7 +370,8 @@ class TransputInputController: IMKInputController {
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
-        commitText(self.inputHanlder.getCompsingText())
+//        commitText(self.inputHanlder.getCompsingText())
+        self.client()?.insertText(self.inputHanlder.getCompsingText(), replacementRange: .empty)
 //        hideCadidatesWindow()
         hideTransPanel()
         hidePalettes()
