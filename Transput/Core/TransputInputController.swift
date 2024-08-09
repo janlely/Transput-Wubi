@@ -17,6 +17,7 @@ class TransputInputController: IMKInputController {
     private var candidatesWindow: IMKCandidates
     private var transPanel: NSPanel!
     private var inputModePanel: NSPanel!
+    private var inputModelabel: NSTextField!
     private var transBtn: NSButton!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
     private var inputHanlder: InputHandler = InputHandler()
@@ -28,6 +29,7 @@ class TransputInputController: IMKInputController {
         self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         initTransPanel()
+        initInputModePanel()
         
         os_log(.info, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
         self.inputHanlder.loadDict()
@@ -36,7 +38,7 @@ class TransputInputController: IMKInputController {
     
     func initTransPanel() {
         os_log(.info, log: log, "初始化翻译面板")
-        transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
+        transPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 26),
                             styleMask: [.nonactivatingPanel],
                             backing: .buffered,
                             defer: false)
@@ -77,25 +79,33 @@ class TransputInputController: IMKInputController {
             transBtn.trailingAnchor.constraint(equalTo: transPanel.contentView!.trailingAnchor),
             transBtn.bottomAnchor.constraint(equalTo: transPanel.contentView!.bottomAnchor)
         ])
-
-        
-        inputModePanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
+    }
+    
+    func initInputModePanel() {
+        os_log(.info, log: log, "初始化中英切换面板")
+        inputModePanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 28, height: 28),
                             styleMask: [.nonactivatingPanel],
                             backing: .buffered,
                             defer: false)
-        inputModePanel.level = .popUpMenu
-        // 设置窗口行为
+        
+        inputModelabel = NSTextField(frame: NSRect.zero)
+        inputModelabel.isEditable = false
+        inputModelabel.font = NSFont.systemFont(ofSize: 16)
+        inputModelabel.backgroundColor = NSColor.white
+        inputModelabel.textColor = NSColor.black
+
         inputModePanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         inputModePanel.isFloatingPanel = true
         // 确保panel不会成为key window
         inputModePanel.becomesKeyOnlyIfNeeded = true
-        // 设置内容视图
+        inputModePanel.level = .popUpMenu
         inputModePanel.contentView?.wantsLayer = true
-        inputModePanel.contentView?.layer?.cornerRadius = 10
-        inputModePanel.contentView?.layer?.backgroundColor = NSColor.red.cgColor
-        
+        inputModePanel.contentView?.layer?.backgroundColor = NSColor.gray.cgColor
+        inputModePanel.contentView?.addSubview(inputModelabel)
 
-
+        inputModelabel.centerXAnchor.constraint(equalTo: inputModePanel.contentView!.centerXAnchor).isActive = true
+        inputModelabel.centerYAnchor.constraint(equalTo: inputModePanel.contentView!.centerYAnchor).isActive = true
+        inputModelabel.frame.size = NSMakeSize(26, 26)
     }
 
     
@@ -126,7 +136,7 @@ class TransputInputController: IMKInputController {
                 //shift键抬起之前没有其他keyDown事件，说明shift是单独被按下的
                 if shiftPushedAlone && shiftIsDown {
                     os_log(.info, log: log, "shift抬起，切换中/英文")
-                    self.inputHanlder.isEnMode.toggle()
+                    self.switchInputMode()
                 }
                 shiftIsDown = false
                 return true
@@ -247,11 +257,11 @@ class TransputInputController: IMKInputController {
                 //获取标记文本末尾的位置
                 showPanel()
             } else {
-                hidePanel()
+                hideTransPanel()
             }
             return
         }
-        hidePanel()
+        hideTransPanel()
         showCadidatesWindow()
     }
     
@@ -302,11 +312,7 @@ class TransputInputController: IMKInputController {
         }
     }
     
-    
-    func doShowPanel() {
-        if !ConfigModel.shared.useAITrans {
-            return
-        }
+    func findPosition() -> NSRect {
         var inputPos = NSRect()
         let attr = self.client().attributes(forCharacterIndex: 0, lineHeightRectangle: &inputPos)
         var heigthOffset: CGFloat = 26
@@ -322,12 +328,23 @@ class TransputInputController: IMKInputController {
         }
         os_log(.info, log: log, "显示翻译按钮, x: %{public}.1f, y: %{public}.1f, width: %{public}.1f, height: %{public}.1f",
                inputPos.minX, inputPos.minY, 100, 26)
+        return inputPos
+    }
+    
+    
+    func doShowPanel() {
+        if !ConfigModel.shared.useAITrans {
+            return
+        }
+        let inputPos = findPosition()
+        os_log(.info, log: log, "显示翻译按钮, x: %{public}.1f, y: %{public}.1f, width: %{public}.1f, height: %{public}.1f",
+               inputPos.minX, inputPos.minY, 100, 26)
         self.transPanel.setFrame(inputPos, display: false)
         self.transPanel.orderFront(nil)
     }
     
     
-    func hidePanel() {
+    func hideTransPanel() {
         if !ConfigModel.shared.useAITrans {
             return
         }
@@ -347,23 +364,24 @@ class TransputInputController: IMKInputController {
         super.activateServer(sender)
         os_log(.info, log: log, "启用输入法")
         hideCadidatesWindow()
-        hidePanel()
+        hideTransPanel()
         self.inputHanlder.clear()
     }
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
         commitText(self.inputHanlder.getCompsingText())
-        hidePanel()
+        hideCadidatesWindow()
+        hideTransPanel()
     }
     
     func commitText(_ content: String) {
-        self.hidePanel()
-        if let client = self.client() {
-            client.insertText(content, replacementRange: .empty)
-        } else {
-            os_log(.info, log: log, "无法提交剩余的标记文本")
-        }
+        self.hideTransPanel()
+//        if let client = self.client() {
+        self.client()?.insertText(content, replacementRange: .empty)
+//        } else {
+//            os_log(.info, log: log, "无法提交剩余的标记文本")
+//        }
         self.inputHanlder.clear()
         hideCadidatesWindow()
     }
@@ -394,6 +412,28 @@ class TransputInputController: IMKInputController {
     override func recognizedEvents(_ sender: Any!) -> Int {
         os_log(.debug, log: log, "recognizedEvents")
         return Int(NSEvent.EventTypeMask.Element(arrayLiteral: .keyDown, .flagsChanged).rawValue)
+    }
+    
+    func switchInputMode() {
+        self.inputHanlder.isEnMode.toggle()
+        if self.inputHanlder.isEnMode {
+            self.inputModelabel.stringValue = "英"
+        } else {
+            self.inputModelabel.stringValue = "中"
+        }
+        self.inputModePanel.setFrame(findPosition(), display: false)
+        if Thread.isMainThread {
+            hideCadidatesWindow()
+            hideTransPanel()
+            inputModePanel.orderFront(nil)
+        } else {
+            DispatchQueue.main.async {
+                self.inputModePanel.orderFront(nil)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.inputModePanel.orderOut(nil)
+        }
     }
 }
 

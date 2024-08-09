@@ -84,8 +84,8 @@ class InputHandler {
             case .space:
                 addUnit()
                 doInput(" ", lock: true)
-                self.state = .start2
-                return .continute
+                self.state = .start
+                return .commit
             default:
                 return .ignore
             }
