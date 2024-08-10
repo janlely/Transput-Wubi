@@ -26,7 +26,7 @@ class TransputInputController: IMKInputController {
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         os_log(.info, log: log, "init")
-        self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
+        self.candidatesWindow = (NSApplication.shared.delegate as! AppDelegate).candidatesWindow
         super.init(server: server, delegate: delegate, client: inputClient)
         initTransPanel()
         initInputModePanel()
@@ -363,18 +363,16 @@ class TransputInputController: IMKInputController {
     override func activateServer(_ sender: Any!) {
         super.activateServer(sender)
         os_log(.info, log: log, "启用输入法")
-        hideTransPanel()
         self.inputHanlder.clear()
-        hidePalettes()
+        hideTransPanel()
+        hideCadidatesWindow()
     }
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.info, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
-//        commitText(self.inputHanlder.getCompsingText())
         self.client()?.insertText(self.inputHanlder.getCompsingText(), replacementRange: .empty)
-//        hideCadidatesWindow()
+        hideCadidatesWindow()
         hideTransPanel()
-        hidePalettes()
     }
     
     func commitText(_ content: String) {
