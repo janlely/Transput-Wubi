@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Transput
+@testable import Transput_Wubi
 
 class TransputTests: XCTestCase {
 
