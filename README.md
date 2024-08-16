@@ -24,11 +24,11 @@ Checked in March 2024.
 
 xcodebuild
 
-cp -r build/Release/Transput.app ~/Library/Input\ Methods/
+cp -r build/Release/Transput-Wubi.app ~/Library/Input\ Methods/
 ```
 
 * 注销当前用户
 
-* 在系统输入法设置中添加Transput
+* 在系统输入法设置中添加Transput-Wubi
 
 
