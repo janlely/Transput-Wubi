@@ -99,20 +99,43 @@ class TransputTests: XCTestCase {
         
         let inputHandler = InputHandler()
         inputHandler.loadDict()
+        inputHandler.isEnMode = true
         
-        let _ = inputHandler.handlerInput(.lower(char: "w"))
+        let _ = inputHandler.handlerInput(.lower(char: "t"))
         var text = inputHandler.getCompsingText()
-        assert(text == "w")
+        assert(text == "t")
         
-        let _ = inputHandler.handlerInput(.lower(char: "q"))
+        let _ = inputHandler.handlerInput(.lower(char: "r"))
         text = inputHandler.getCompsingText()
-        assert(text == "wq")
+        assert(text == "tr")
         
-        let _ = inputHandler.handlerInput(.other(char: "，"))
+        let _ = inputHandler.handlerInput(.lower(char: "a"))
         text = inputHandler.getCompsingText()
-        assert(text == "你，")
-        
-        
+        assert(text == "tra")
 
+        let _ = inputHandler.handlerInput(.lower(char: "n"))
+        text = inputHandler.getCompsingText()
+        assert(text == "tran")
+
+        let _ = inputHandler.handlerInput(.lower(char: "s"))
+        text = inputHandler.getCompsingText()
+        assert(text == "trans")
+
+        let _ = inputHandler.handlerInput(.lower(char: "B"))
+        text = inputHandler.getCompsingText()
+        assert(text == "transB")
+        
+        let _ = inputHandler.handlerInput(.lower(char: "t"))
+        text = inputHandler.getCompsingText()
+        assert(text == "transBt")
+        
+        let _ = inputHandler.handlerInput(.lower(char: "n"))
+        text = inputHandler.getCompsingText()
+        assert(text == "transBtn")
+        
+        inputHandler.isEnMode = false
+        let _ = inputHandler.handlerInput(.lower(char: "x"))
+        text = inputHandler.getCompsingText()
+        assert(text == "transBtnx")
     }
 }

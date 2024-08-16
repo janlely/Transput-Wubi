@@ -29,6 +29,7 @@
 		E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A432C6053B500D78D7A /* InputEnums.swift */; };
 		E5207A462C60671000D78D7A /* InputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A452C60671000D78D7A /* InputHandler.swift */; };
 		E54BE42F2C5B724B00727221 /* wubi86_jidian.dict in Resources */ = {isa = PBXBuildFile; fileRef = E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */; };
+		E5E2D38D2C6DEA0B002EAF5D /* CustomProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E2D38C2C6DEA0B002EAF5D /* CustomProgress.swift */; };
 		E5FFDF912C5C6E25008CB649 /* InputError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FFDF902C5C6E25008CB649 /* InputError.swift */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		E5207A432C6053B500D78D7A /* InputEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEnums.swift; sourceTree = "<group>"; };
 		E5207A452C60671000D78D7A /* InputHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHandler.swift; sourceTree = "<group>"; };
 		E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = wubi86_jidian.dict; sourceTree = SOURCE_ROOT; };
+		E5E2D38C2C6DEA0B002EAF5D /* CustomProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomProgress.swift; sourceTree = "<group>"; };
 		E5FFDF902C5C6E25008CB649 /* InputError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -180,6 +182,7 @@
 			children = (
 				E5207A272C5F8C2100D78D7A /* ConfigWindowController.swift */,
 				E5207A282C5F8C2100D78D7A /* preferences.xib */,
+				E5E2D38C2C6DEA0B002EAF5D /* CustomProgress.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -359,6 +362,7 @@
 				E5207A3C2C5F8C2100D78D7A /* HttpClient.swift in Sources */,
 				E5207A3D2C5F8C2100D78D7A /* Trie.swift in Sources */,
 				E5207A372C5F8C2100D78D7A /* TransputInputController.swift in Sources */,
+				E5E2D38D2C6DEA0B002EAF5D /* CustomProgress.swift in Sources */,
 				E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */,
 				E5207A3F2C5F8C2100D78D7A /* Translater.swift in Sources */,
 				E5207A3E2C5F8C2100D78D7A /* TongyiQianWen.swift in Sources */,

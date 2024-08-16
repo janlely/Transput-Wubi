@@ -92,16 +92,31 @@ class InputHandler {
         case .inputing:
             switch charType {
             case .lower(let char):
-                if hitLimit() {
+                if !isEnMode && hitLimit() {
                     self.state = .autoSelecting
                     return handlerInput(charType)
                 }
                 doInput(char, lock: false)
                 return .continute
             case .other(let char):
+                if isEnMode {
+                    doInput(char, lock: false)
+                    return .continute
+                }
                 self.state = .autoSelecting
                 return handlerInput(charType)
-            case .space, .number:
+            case .space:
+                if isEnMode {
+                    doInput(" ", lock: false)
+                    return .continute
+                }
+                self.state = .manuallySeleting
+                return handlerInput(charType)
+            case .number(let char):
+                if isEnMode {
+                    doInput(char, lock: false)
+                    return .continute
+                }
                 self.state = .manuallySeleting
                 return handlerInput(charType)
             case .backspace:

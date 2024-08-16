@@ -23,10 +23,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.cfgWindow = window
             }
         }
+
     }
     
     func applicationWillTerminate(_ notification: Notification) {
     }
-    
 
 }
