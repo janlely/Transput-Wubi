@@ -19,7 +19,7 @@ class TongyiQianWen: Translater {
     
     func translate(_ content: String, completion: @escaping (String) -> Void, defaultHandler: @escaping () -> Void) {
         let request = ChatRequest(model: "qwen-turbo", messages: [
-            ChatRequest.Message(role: "system", content: "You are a professional Chinese to English tranlstaor.For each subsequent question, you must provide the translation directly."),
+            ChatRequest.Message(role: "system", content: "You are a translator. For each subsequent question, you must translate it into English directly."),
             ChatRequest.Message(role: "user", content: content),
         ])
         

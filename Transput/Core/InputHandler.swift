@@ -43,6 +43,13 @@ class InputHandler {
     
     func makeCadidates() -> [String] {
         if isEnMode {
+            os_log(.info, log: log, "isEnMode,返回空的候选词")
+            self.cadidatesArray = []
+            return []
+        }
+        if let isLocked = self.isLockedArray.last, isLocked {
+            os_log(.info, log: log, "isLocked,返回空的候选词")
+            self.cadidatesArray = []
             return []
         }
         guard let base = self.composingArray.last else {
@@ -73,17 +80,17 @@ class InputHandler {
             switch charType {
             case .lower(let char): //小写字母 -> 添加一个空格 -> 输入字符 -> .inputing
                 addUnit()
-                doInput(char, lock: false)
+                doInput(char)
                 self.state = .inputing
                 return .continute
             case .other(let char):
-                addUnit()
-                doInput(char, lock: true)
-                self.state = .inputing
+                addUnit(true)
+                doInput(convertPunctuation(char))
+                self.state = .start2
                 return .commit
             case .space:
-                addUnit()
-                doInput(" ", lock: true)
+                addUnit(true)
+                doInput(" ")
                 self.state = .start
                 return .commit
             default:
@@ -92,36 +99,42 @@ class InputHandler {
         case .inputing:
             switch charType {
             case .lower(let char):
-                if !isEnMode && hitLimit() {
+                if isEnMode {
+                    addUnit(true)
+                    doInput(char)
+                    self.state = .start2
+                    return .continute
+                }
+                if hitLimit() {
                     self.state = .autoSelecting
                     return handlerInput(charType)
                 }
-                doInput(char, lock: false)
+                doInput(char)
                 return .continute
             case .other(let char):
                 if isEnMode {
-                    doInput(char, lock: false)
+                    doInput(char)
                     return .continute
                 }
                 self.state = .autoSelecting
                 return handlerInput(charType)
             case .space:
                 if isEnMode {
-                    doInput(" ", lock: false)
+                    doInput(" ")
                     return .continute
                 }
                 self.state = .manuallySeleting
                 return handlerInput(charType)
             case .number(let char):
                 if isEnMode {
-                    doInput(char, lock: false)
+                    doInput(char)
                     return .continute
                 }
                 self.state = .manuallySeleting
                 return handlerInput(charType)
             case .backspace:
-                let back = back()
-                if !back {
+                let droped = backAndDrop()
+                if !droped {
                     return .continute
                 }
                 if self.composingArray.isEmpty {
@@ -147,15 +160,15 @@ class InputHandler {
                     doSelect(0, true)
                 }
                 addUnit()
-                doInput(char, lock: false)
+                doInput(char)
                 self.state = .inputing
                 return .continute
             case .other(let char):
                 if !self.cadidatesArray.isEmpty {
                     doSelect(0, true)
                 }
-                addUnit()
-                doInput(char, lock: true)
+                addUnit(true)
+                doInput(convertPunctuation(char))
                 self.state = .start2
                 return .conditionalCommit
             default:
@@ -168,8 +181,8 @@ class InputHandler {
                 if !self.cadidatesArray.isEmpty {
                     doSelect(0, false)
                 } else {
-                    addUnit()
-                    doInput(" ", lock: true)
+                    addUnit(true)
+                    doInput(" ")
                 }
                 self.state = .start2
                 return .conditionalCommit
@@ -179,8 +192,8 @@ class InputHandler {
                     self.state = .start2
                     return .conditionalCommit
                 }
-                addUnit()
-                doInput(char, lock: true)
+                addUnit(true)
+                doInput(char)
                 self.state = .start2
                 return .continute
             default:
@@ -190,23 +203,29 @@ class InputHandler {
         case .start2:
             switch charType {
             case .lower(let char): //小写字母 -> 添加一个空格 -> 输入字符 -> .inputing
+                if isEnMode {
+                    addUnit(true)
+                    doInput(char)
+                    self.state = .start2
+                    return .continute
+                }
                 addUnit()
-                doInput(char, lock: false)
+                doInput(char)
                 self.state = .inputing
                 return .continute
             case .number(let char), .other(let char):
-                addUnit()
-                doInput(char, lock: true)
+                addUnit(true)
+                doInput(convertPunctuation(char))
                 self.state = .start2
                 return .continute
             case .space:
-                addUnit()
-                doInput(" ", lock: true)
+                addUnit(true)
+                doInput(" ")
                 self.state = .start2
                 return .continute
             case .backspace:
-                let back = back()
-                if !back {
+                let droped = backAndDrop()
+                if !droped {
                     return .continute
                 }
                 if self.composingArray.isEmpty {
@@ -227,17 +246,17 @@ class InputHandler {
         }
     }
     
-    private func addUnit() {
+    private func addUnit(_ lock: Bool = false) {
         self.composingArray.append("")
         self.rawCodeArray.append("")
-        self.isLockedArray.append(false)
+        self.isLockedArray.append(lock)
     }
     
-    private func doInput(_ char: Character, lock: Bool) {
+    private func doInput(_ char: Character) {
         let count = self.composingArray.count
         self.composingArray[count - 1].append(char)
         self.rawCodeArray[count - 1].append(char)
-        self.isLockedArray[count - 1] = lock
+//        self.isLockedArray[count - 1] = lock
     }
 
     private func unSelect() {
@@ -245,7 +264,7 @@ class InputHandler {
         self.composingArray[count - 1] = self.rawCodeArray[count - 1]
     }
     
-    private func back() -> Bool {
+    private func backAndDrop() -> Bool {
         let count = self.composingArray.count
         self.composingArray[count - 1] = String(self.composingArray[count - 1].dropLast())
         self.rawCodeArray[count - 1] = self.composingArray[count - 1]
@@ -270,6 +289,14 @@ class InputHandler {
         }
     }
     
+    
+    func toggleMode() {
+        isEnMode.toggle()
+        if !isEnMode {
+            self.state = .start2
+        }
+    }
+
 }
 
 enum InputResult {

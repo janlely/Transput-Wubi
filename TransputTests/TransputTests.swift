@@ -138,4 +138,29 @@ class TransputTests: XCTestCase {
         text = inputHandler.getCompsingText()
         assert(text == "transBtnx")
     }
+    
+    func testExample3() throws {
+        
+        let inputHandler = InputHandler()
+        inputHandler.loadDict()
+//        inputHandler.isEnMode = true
+        
+        let _ = inputHandler.handlerInput(.lower(char: "w"))
+        let _ = inputHandler.handlerInput(.lower(char: "q"))
+        let _ = inputHandler.handlerInput(.lower(char: "v"))
+        let _ = inputHandler.handlerInput(.lower(char: "b"))
+        let _ = inputHandler.makeCadidates()
+        let _ = inputHandler.handlerInput(.space)
+        var text = inputHandler.getCompsingText()
+        assert(text == "你好")
+
+        let _ = inputHandler.handlerInput(.other(char: ","))
+        text = inputHandler.getCompsingText()
+        assert(text == "你好，")
+        let _ = inputHandler.handlerInput(.lower(char: "d"))
+        let _ = inputHandler.handlerInput(.backspace)
+        let _ = inputHandler.handlerInput(.lower(char: "d"))
+        let cads = inputHandler.makeCadidates()
+        assert(!cads.isEmpty)
+    }
 }

@@ -197,14 +197,14 @@ class TransputInputController: IMKInputController {
                 os_log(.debug, log: log, "不支持的按键2: %{public}d", event.keyCode)
                 return false
             }
-            let char = convertPunctuation(ch)
-            if char.isLowercase {
-                return handlerInput(.lower(char: char))
+//            let char = convertPunctuation(ch)
+            if ch.isLowercase {
+                return handlerInput(.lower(char: ch))
             }
-            if char.isNumber {
-                return handlerInput(.number(num: char))
+            if ch.isNumber {
+                return handlerInput(.number(num: ch))
             }
-            return handlerInput(.other(char: char))
+            return handlerInput(.other(char: ch))
         }
     }
     
