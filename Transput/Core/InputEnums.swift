@@ -8,9 +8,11 @@
 import Foundation
 
 enum InputState {
+    // |
     case start
+    // [unit1][unit2][...]|
     case start2
-//    case toBeContinue
+    // [unit1][unit2][...
     case inputing //输入中
     case manuallySeleting //手动选择候选词
     case autoSelecting //自动选择候选词
