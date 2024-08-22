@@ -17,6 +17,10 @@ Checked in March 2024.
 
 * 使用shift在输入法内切换中英文
 
+* 使用ctrl+t 开启/关闭AI翻译(需先设置apiKey)
+
+* 输入法菜单中可以设置AI翻译的apikey
+
 ## 本地安装
 
 * build
