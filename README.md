@@ -15,7 +15,7 @@ Checked in March 2024.
 * AI翻译
 ![image](./show.gif)
 
-* 使用shift在输入法内切换中英文
+* 使用shift在输入法内切换中英文,方便在翻译之前输入中英混合的内容
 
 * 使用ctrl+t 开启/关闭AI翻译(需先设置apiKey)
 
