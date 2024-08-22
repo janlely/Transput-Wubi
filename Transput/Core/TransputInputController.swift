@@ -18,6 +18,8 @@ class TransputInputController: IMKInputController {
     private var transPanel: NSPanel!
     private var inputModePanel: NSPanel!
     private var inputModelabel: NSTextField!
+    private var translateSwitchPanel: NSPanel!
+    private var translateSwitchLabel: NSTextField!
     private var transBtn: NSButton!
     private var transProg: CustomProgress!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
@@ -34,7 +36,8 @@ class TransputInputController: IMKInputController {
         super.init(server: server, delegate: delegate, client: inputClient)
         initTransPanel()
         initInputModePanel()
-        
+        initTranslateSwitchPanel()
+
 
         os_log(.debug, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
         self.inputHanlder.loadDict()
@@ -87,9 +90,36 @@ class TransputInputController: IMKInputController {
         ])
     }
     
+    func initTranslateSwitchPanel() {
+        os_log(.debug, log: log, "初始化翻译开关切换面板")
+        translateSwitchPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 58, height: 26),
+                            styleMask: [.nonactivatingPanel],
+                            backing: .buffered,
+                            defer: false)
+        
+        translateSwitchLabel = NSTextField(frame: NSRect.zero)
+        translateSwitchLabel.isEditable = false
+        translateSwitchLabel.font = NSFont.systemFont(ofSize: 16)
+        translateSwitchLabel.backgroundColor = NSColor.white
+        translateSwitchLabel.textColor = NSColor.black
+
+        translateSwitchPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        translateSwitchPanel.isFloatingPanel = true
+        // 确保panel不会成为key window
+        translateSwitchPanel.becomesKeyOnlyIfNeeded = true
+        translateSwitchPanel.level = .popUpMenu
+        translateSwitchPanel.contentView?.wantsLayer = true
+        translateSwitchPanel.contentView?.layer?.backgroundColor = NSColor.gray.cgColor
+        translateSwitchPanel.contentView?.addSubview(translateSwitchLabel)
+
+        translateSwitchLabel.centerXAnchor.constraint(equalTo: translateSwitchPanel.contentView!.centerXAnchor).isActive = true
+        translateSwitchLabel.centerYAnchor.constraint(equalTo: translateSwitchPanel.contentView!.centerYAnchor).isActive = true
+        translateSwitchLabel.frame.size = NSMakeSize(58, 26)
+    }
+
     func initInputModePanel() {
         os_log(.debug, log: log, "初始化中英切换面板")
-        inputModePanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 28, height: 28),
+        inputModePanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 26, height: 26),
                             styleMask: [.nonactivatingPanel],
                             backing: .buffered,
                             defer: false)
@@ -116,9 +146,6 @@ class TransputInputController: IMKInputController {
 
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-        
-//        let modifiers = event.modifierFlags
-//        let changes = lastModifiers.symmetricDifference(modifiers)
 
         os_log(.debug, log: log, "handle,进行输入处理程序")
         if !(sender is IMKTextInput) {
@@ -156,10 +183,27 @@ class TransputInputController: IMKInputController {
         
     }
     
+    func isSwitchTranslate(_ event: NSEvent!) -> Bool {
+        if event.keyCode != 17 {
+            os_log(.debug, log: log, "按键不是t: %{public}d", event.keyCode)
+            return false
+        }
+        let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let controlPushedAlone = modifierFlags.contains(.control) && !modifierFlags.contains(.shift) && !modifierFlags.contains(.option) && !modifierFlags.contains(.command)
+        if !controlPushedAlone {
+            return false
+        }
+        return true
+    }
+    
     func handlerKeyDown(_ event: NSEvent!) -> Bool {
         
         os_log(.debug, log: log, "handle,开始进行输入处理")
-
+        //command + T用来开启/关闭翻译
+        if isSwitchTranslate(event) {
+            switchTranslate()
+            return true
+        }
         //忽略所有的command, option, control组合键
         let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         // 如果有任何修饰键被按下，就忽略这个事件
@@ -197,7 +241,6 @@ class TransputInputController: IMKInputController {
                 os_log(.debug, log: log, "不支持的按键2: %{public}d", event.keyCode)
                 return false
             }
-//            let char = convertPunctuation(ch)
             if ch.isLowercase {
                 return handlerInput(.lower(char: ch))
             }
@@ -426,6 +469,34 @@ class TransputInputController: IMKInputController {
         return Int(NSEvent.EventTypeMask.Element(arrayLiteral: .keyDown, .flagsChanged).rawValue)
     }
     
+    func switchTranslate() {
+        //不能在输入过程中切换翻译开关
+        if !self.inputHanlder.getCompsingText().isEmpty {
+            return
+        }
+        //没设置apiKey不能切换翻译开关
+        if ConfigModel.shared.apiKey == nil || ConfigModel.shared.apiKey.isEmpty {
+            return
+        }
+        ConfigModel.shared.useAITrans.toggle()
+        if ConfigModel.shared.useAITrans {
+            self.translateSwitchLabel.stringValue = "翻译开"
+        } else {
+            self.translateSwitchLabel.stringValue = "翻译关"
+        }
+        self.translateSwitchPanel.setFrame(findPosition(), display: false)
+        if Thread.isMainThread {
+            translateSwitchPanel.orderFront(nil)
+        } else {
+            DispatchQueue.main.async {
+                self.translateSwitchPanel.orderFront(nil)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.translateSwitchPanel.orderOut(nil)
+        }
+    }
+
     func switchInputMode() {
         self.inputHanlder.isEnMode.toggle()
         if self.inputHanlder.isEnMode {
