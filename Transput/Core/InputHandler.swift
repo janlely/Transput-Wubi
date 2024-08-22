@@ -168,7 +168,7 @@ class InputHandler {
                     doSelect(0, true)
                 }
                 addUnit(true)
-                doInput(convertPunctuation(char))
+                doInput(isEnMode ? char : convertPunctuation(char))
                 self.state = .start2
                 return .conditionalCommit
             default:
@@ -215,7 +215,7 @@ class InputHandler {
                 return .continute
             case .number(let char), .other(let char):
                 addUnit(true)
-                doInput(convertPunctuation(char))
+                doInput(isEnMode ? char : convertPunctuation(char))
                 self.state = .start2
                 return .continute
             case .space:
