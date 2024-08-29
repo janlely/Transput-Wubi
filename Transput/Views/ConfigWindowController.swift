@@ -26,7 +26,11 @@ class ConfigWindowController: NSWindowController {
         os_log(.info, log: log, "model: %{public}s, apiKey: %{public}s", model.selectedItem!.title, apiKey)
         ConfigModel.shared.apiKey = apiKey
         ConfigModel.shared.useAITrans = toggled
-        ConfigModel.shared.modelType = switch model.selectedItem!.title {case "通义千问": .tongyi default: nil}
+        ConfigModel.shared.modelType = switch model.selectedItem!.title {
+        case "通义千问": .tongyi
+        case "GPT-3.5-turbo": .gpt3_5_turbo
+        default: nil
+        }
         sender.window?.orderOut(nil)
     }
     

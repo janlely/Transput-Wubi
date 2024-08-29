@@ -19,6 +19,6 @@ class ConfigModel {
 
 enum LLMType {
     case tongyi
-    case gpt3_5
+    case gpt3_5_turbo
 }
 

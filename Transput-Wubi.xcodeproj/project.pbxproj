@@ -28,6 +28,7 @@
 		E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A342C5F8C2100D78D7A /* NSRange.swift */; };
 		E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A432C6053B500D78D7A /* InputEnums.swift */; };
 		E5207A462C60671000D78D7A /* InputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A452C60671000D78D7A /* InputHandler.swift */; };
+		E5365BFA2C8089EA0067F1F0 /* Gpt35Turbo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5365BF92C8089EA0067F1F0 /* Gpt35Turbo.swift */; };
 		E54BE42F2C5B724B00727221 /* wubi86_jidian.dict in Resources */ = {isa = PBXBuildFile; fileRef = E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */; };
 		E5E2D38D2C6DEA0B002EAF5D /* CustomProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E2D38C2C6DEA0B002EAF5D /* CustomProgress.swift */; };
 		E5FFDF912C5C6E25008CB649 /* InputError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FFDF902C5C6E25008CB649 /* InputError.swift */; };
@@ -77,6 +78,7 @@
 		E5207A342C5F8C2100D78D7A /* NSRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSRange.swift; sourceTree = "<group>"; };
 		E5207A432C6053B500D78D7A /* InputEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEnums.swift; sourceTree = "<group>"; };
 		E5207A452C60671000D78D7A /* InputHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHandler.swift; sourceTree = "<group>"; };
+		E5365BF92C8089EA0067F1F0 /* Gpt35Turbo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gpt35Turbo.swift; sourceTree = "<group>"; };
 		E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = wubi86_jidian.dict; sourceTree = SOURCE_ROOT; };
 		E5E2D38C2C6DEA0B002EAF5D /* CustomProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomProgress.swift; sourceTree = "<group>"; };
 		E5FFDF902C5C6E25008CB649 /* InputError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputError.swift; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 			children = (
 				E5207A2E2C5F8C2100D78D7A /* TongyiQianWen.swift */,
 				E5207A2F2C5F8C2100D78D7A /* Translater.swift */,
+				E5365BF92C8089EA0067F1F0 /* Gpt35Turbo.swift */,
 			);
 			path = Translate;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */,
 				E5207A3F2C5F8C2100D78D7A /* Translater.swift in Sources */,
 				E5207A3E2C5F8C2100D78D7A /* TongyiQianWen.swift in Sources */,
+				E5365BFA2C8089EA0067F1F0 /* Gpt35Turbo.swift in Sources */,
 				E5207A412C5F8C2100D78D7A /* ConfigModel.swift in Sources */,
 				E5207A3B2C5F8C2100D78D7A /* CommonUtils.swift in Sources */,
 				E5207A222C5F849A00D78D7A /* main.swift in Sources */,

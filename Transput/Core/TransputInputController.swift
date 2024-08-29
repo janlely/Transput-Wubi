@@ -324,9 +324,15 @@ class TransputInputController: IMKInputController {
         // 处理按钮点击事件
         switch ConfigModel.shared.modelType {
         case .tongyi:
-            TongyiQianWen(apiKey: ConfigModel.shared.apiKey).translate(content, completion: {response in
-                self.commitText(response)
-            }, defaultHandler: { () in self.commitText(content) })
+            TongyiQianWen(apiKey: ConfigModel.shared.apiKey)
+                .translate(content, completion: {response in
+                    self.commitText(response)
+                }, defaultHandler: { () in self.commitText(content) })
+        case .gpt3_5_turbo:
+            Gpt35Turbo(apiKey: ConfigModel.shared.apiKey)
+                .translate(content, completion:{response in
+                    self.commitText(response)
+                }, defaultHandler: { () in self.commitText(content) })
         default:
             os_log(.debug, log: log, "未知模型，提交当前内容")
             self.commitText(content)
