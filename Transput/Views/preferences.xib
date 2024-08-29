@@ -42,20 +42,6 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wpj-1C-wxE">
-                        <rect key="frame" x="248" y="155" width="103" height="25"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <popUpButtonCell key="cell" type="push" title="GPT-3.5-turbo" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="tHa-f4-ZuY" id="3nW-g0-D3Z">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="v2W-5E-sao">
-                                <items>
-                                    <menuItem title="通义千问" id="tHa-f4-ZuX"/>
-                                    <menuItem title="GPT-3.5-turbo" state="on" id="tHa-f4-ZuY"/>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QHN-hv-UMC">
                         <rect key="frame" x="116" y="103" width="50" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -96,6 +82,20 @@
                             <action selector="save:" target="82B-qZ-eMo" id="vyF-Yd-YC7"/>
                         </connections>
                     </button>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wpj-1C-wxE">
+                        <rect key="frame" x="248" y="155" width="103" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="push" title="GPT-3.5-turbo" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="tHa-f4-ZuY" id="3nW-g0-D3Z">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="v2W-5E-sao">
+                                <items>
+                                    <menuItem title="通义千问" id="tHa-f4-ZuX"/>
+                                    <menuItem title="GPT-3.5-turbo" state="on" id="tHa-f4-ZuY"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
                 </subviews>
             </view>
             <point key="canvasLocation" x="447" y="-101"/>
