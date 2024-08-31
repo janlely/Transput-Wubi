@@ -26,5 +26,7 @@ enum CharType {
     case space
     case backspace
     case enter
+    case left
+    case right
 }
 

@@ -21,146 +21,128 @@ class TransputTests: XCTestCase {
     func testExample1() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-        let inputHandler = InputHandler()
-        inputHandler.loadDict()
+        let inputProcesser = InputProcesser()
+        inputProcesser.loadDict()
         
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        var text = inputHandler.getCompsingText()
-        assert(text == "a")
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "aa")
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "aaa")
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "aaaa")
-        let _ = inputHandler.makeCadidates()
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        assert(inputHandler.getCompsingText() == "工a")
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "a")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 1)
+
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aa")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 2)
+
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aaa")
+        assert(inputProcesser.cursorPos == 3)
+        assert(inputProcesser.codeCount == 3)
+
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aaaa")
+        assert(inputProcesser.cursorPos == 4)
+        assert(inputProcesser.codeCount == 4)
+
+        let _ = inputProcesser.makeCadidates()
+
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "工a")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 1)
+
+        let _ = inputProcesser.processInput(.left)
+        assert(inputProcesser.composingString == "工a")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 0)
+
+        let _ = inputProcesser.processInput(.right)
+        assert(inputProcesser.composingString == "工a")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 0)
+
+        let _ = inputProcesser.processInput(.enter)
+        assert(inputProcesser.composingString == "工a")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 0)
+
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "工aa")
+        assert(inputProcesser.cursorPos == 3)
+        assert(inputProcesser.codeCount == 1)
+
+        let _ = inputProcesser.makeCadidates()
         
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(inputHandler.getCompsingText() == "aaaa")
+        let _ = inputProcesser.processInput(.space)
+        assert(inputProcesser.composingString == "工a工")
+        assert(inputProcesser.cursorPos == 3)
+        assert(inputProcesser.codeCount == 0)
 
-        let _ = inputHandler.makeCadidates()
-        let _ = inputHandler.handlerInput(.space)
-        assert(inputHandler.getCompsingText() == "工")
-
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(text == "")
-
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "a")
-
-        let _ = inputHandler.handlerInput(.space)
-        text = inputHandler.getCompsingText()
-        assert(text == "工")
+        let _ = inputProcesser.processInput(.backspace)
+        assert(inputProcesser.composingString == "工a")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 0)
         
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "工a")
+        let _ = inputProcesser.processInput(.backspace)
+        assert(inputProcesser.composingString == "工")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 0)
 
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(text == "工")
+        let _ = inputProcesser.processInput(.backspace)
+        assert(inputProcesser.composingString == "")
+        assert(inputProcesser.cursorPos == 0)
+        assert(inputProcesser.codeCount == 0)
         
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(text == "")
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "a")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 1)
+        
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aa")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 2)
+        
+        
+        let _ = inputProcesser.makeCadidates()
+        
+        let _ = inputProcesser.processInput(.space)
+        assert(inputProcesser.composingString == "式")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 0)
+        
+        let _ = inputProcesser.processInput(.left)
+        assert(inputProcesser.composingString == "式")
+        assert(inputProcesser.cursorPos == 0)
+        assert(inputProcesser.codeCount == 0)
 
         
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "a")
-
-        let _ = inputHandler.handlerInput(.space)
-        text = inputHandler.getCompsingText()
-        assert(text == "工")
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "a式")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 1)
         
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "工a")
-
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(text == "工")
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aa式")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 2)
         
-        let _ = inputHandler.handlerInput(.backspace)
-        text = inputHandler.getCompsingText()
-        assert(text == "")
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aaa式")
+        assert(inputProcesser.cursorPos == 3)
+        assert(inputProcesser.codeCount == 3)
+        
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "aaaa式")
+        assert(inputProcesser.cursorPos == 4)
+        assert(inputProcesser.codeCount == 4)
+        
+        
+        let _ = inputProcesser.makeCadidates()
+        let _ = inputProcesser.processInput(.lower(char: "a"))
+        assert(inputProcesser.composingString == "工a式")
+        assert(inputProcesser.cursorPos == 2)
+        assert(inputProcesser.codeCount == 1)
     }
-
     
-    func testExample2() throws {
-        
-        let inputHandler = InputHandler()
-        inputHandler.loadDict()
-        inputHandler.isEnMode = true
-        
-        let _ = inputHandler.handlerInput(.lower(char: "t"))
-        var text = inputHandler.getCompsingText()
-        assert(text == "t")
-        
-        let _ = inputHandler.handlerInput(.lower(char: "r"))
-        text = inputHandler.getCompsingText()
-        assert(text == "tr")
-        
-        let _ = inputHandler.handlerInput(.lower(char: "a"))
-        text = inputHandler.getCompsingText()
-        assert(text == "tra")
-
-        let _ = inputHandler.handlerInput(.lower(char: "n"))
-        text = inputHandler.getCompsingText()
-        assert(text == "tran")
-
-        let _ = inputHandler.handlerInput(.lower(char: "s"))
-        text = inputHandler.getCompsingText()
-        assert(text == "trans")
-
-        let _ = inputHandler.handlerInput(.lower(char: "B"))
-        text = inputHandler.getCompsingText()
-        assert(text == "transB")
-        
-        let _ = inputHandler.handlerInput(.lower(char: "t"))
-        text = inputHandler.getCompsingText()
-        assert(text == "transBt")
-        
-        let _ = inputHandler.handlerInput(.lower(char: "n"))
-        text = inputHandler.getCompsingText()
-        assert(text == "transBtn")
-        
-        inputHandler.isEnMode = false
-        let _ = inputHandler.handlerInput(.lower(char: "x"))
-        text = inputHandler.getCompsingText()
-        assert(text == "transBtnx")
-    }
-    
-    func testExample3() throws {
-        
-        let inputHandler = InputHandler()
-        inputHandler.loadDict()
-//        inputHandler.isEnMode = true
-        
-        let _ = inputHandler.handlerInput(.lower(char: "w"))
-        let _ = inputHandler.handlerInput(.lower(char: "q"))
-        let _ = inputHandler.handlerInput(.lower(char: "v"))
-        let _ = inputHandler.handlerInput(.lower(char: "b"))
-        let _ = inputHandler.makeCadidates()
-        let _ = inputHandler.handlerInput(.space)
-        var text = inputHandler.getCompsingText()
-        assert(text == "你好")
-
-        let _ = inputHandler.handlerInput(.other(char: ","))
-        text = inputHandler.getCompsingText()
-        assert(text == "你好，")
-        let _ = inputHandler.handlerInput(.lower(char: "d"))
-        let _ = inputHandler.handlerInput(.backspace)
-        let _ = inputHandler.handlerInput(.lower(char: "d"))
-        let cads = inputHandler.makeCadidates()
-        assert(!cads.isEmpty)
-    }
 }

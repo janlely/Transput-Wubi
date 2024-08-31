@@ -23,7 +23,8 @@ class TransputInputController: IMKInputController {
     private var transBtn: NSButton!
     private var transProg: CustomProgress!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
-    private var inputHanlder: InputHandler = InputHandler()
+//    private var inputHanlder: InputHandler = InputHandler()
+    private var inputProcesser: InputProcesser = InputProcesser()
     private var shiftIsDown: Bool = false
     private var shiftPushedAlone: Bool = false
     private var timer: Timer!
@@ -40,7 +41,7 @@ class TransputInputController: IMKInputController {
 
 
         os_log(.debug, log: log, "loading wubi: \(Date().timeIntervalSince1970)")
-        self.inputHanlder.loadDict()
+        self.inputProcesser.loadDict()
         os_log(.debug, log: log, "wubi loaded: \(Date().timeIntervalSince1970)")
     }
     
@@ -229,6 +230,12 @@ class TransputInputController: IMKInputController {
         case 36: //Enter
             os_log(.debug, log: log, "handler,处理回车")
             return handlerInput(.enter)
+        case 123:
+            os_log(.debug, log: log, "handler,处理方向键<-")
+            return handlerInput(.left)
+        case 124:
+            os_log(.debug, log: log, "handler,处理方向键->")
+            return handlerInput(.right)
         default:
             os_log(.debug, log: log, "handler,处理其他字符")
             guard let text = event.characters,
@@ -253,53 +260,87 @@ class TransputInputController: IMKInputController {
     
     func handlerInput(_ charType: CharType) -> Bool {
         //如果非AI模式，并且当前是英文状态，则直接提交之前的输入，并返回
-        if !ConfigModel.shared.useAITrans && self.inputHanlder.isEnMode {
-            self.commitText(self.inputHanlder.getCompsingText())
+        if !ConfigModel.shared.useAITrans && self.inputProcesser.isEnMode {
+            self.commitText(self.inputProcesser.composingString)
             return false
         }
-        let inputResult = self.inputHanlder.handlerInput(charType)
-        let content = self.inputHanlder.getCompsingText()
+        let inputResult = self.inputProcesser.processInput(charType)
+        let content = self.inputProcesser.composingString
         switch inputResult {
         case .commit:
             self.commitText(content)
-            self.inputHanlder.clear()
+            self.inputProcesser.clear()
             return true
         case .conditionalCommit:
             if ConfigModel.shared.useAITrans {
-                self.setMarkedText(content)
+                self.setMarkedText(content, cursorPos: self.inputProcesser.cursorPos)
             } else {
                 self.commitText(content)
             }
             return true
-        case .continute:
-            self.setMarkedText(content)
+        case .typing:
+            self.setMarkedText(content, cursorPos: self.inputProcesser.cursorPos)
             return true
         case .ignore:
             return false
         }
     }
+
+    
+//    func handlerInputOld(_ charType: CharType) -> Bool {
+//        //如果非AI模式，并且当前是英文状态，则直接提交之前的输入，并返回
+//        if !ConfigModel.shared.useAITrans && self.inputHanlder.isEnMode {
+//            self.commitText(self.inputHanlder.getCompsingText())
+//            return false
+//        }
+//        let inputResult = self.inputHanlder.handlerInput(charType)
+//        let content = self.inputHanlder.getCompsingText()
+//        switch inputResult {
+//        case .commit:
+//            self.commitText(content)
+//            self.inputHanlder.clear()
+//            return true
+//        case .conditionalCommit:
+//            if ConfigModel.shared.useAITrans {
+//                self.setMarkedText(content)
+//            } else {
+//                self.commitText(content)
+//            }
+//            return true
+//        case .continute:
+//            self.setMarkedText(content)
+//            return true
+//        case .ignore:
+//            return false
+//        }
+//    }
     
     
     override func candidates(_ sender: Any!) -> [Any]! {
         os_log(.debug, log: log, "生成候选词")
-        return self.inputHanlder.makeCadidates()
+        return self.inputProcesser.makeCadidates()
     }
 
     override func candidateSelected(_ candidateString: NSAttributedString!) {
         os_log(.debug, log: log, "选择候选词: %s", candidateString.string)
-        let content = self.inputHanlder.select(candidateString.string)
+        let content = self.inputProcesser.select(candidateString.string)
         os_log(.debug, log: log, "标记用户输入: %s", content)
         hideCadidatesWindow()
-        setMarkedText(content)
+        if ConfigModel.shared.useAITrans {
+            setMarkedText(content, cursorPos: self.inputProcesser.cursorPos)
+        } else {
+            commitText(content)
+        }
     }
     
     
-    
-    func setMarkedText(_ text: String) {
+    func setMarkedText(_ text: String, cursorPos: Int) {
         os_log(.debug, log: log, "marked text: #%{public}s#", text)
-        self.client().setMarkedText(text, selectionRange: .notFound, replacementRange: .notFound)
+        let attr = mark(forStyle: kTSMHiliteConvertedText, at: NSMakeRange(NSNotFound,0)) as? [NSAttributedString.Key : Any]
+        let att = NSMutableAttributedString(string: text, attributes: attr)
+        self.client().setMarkedText(att, selectionRange: NSRange(location: cursorPos, length: 0), replacementRange: .empty)
         self.candidatesWindow.update()
-        if !self.inputHanlder.hasCadidates() {
+        if self.inputProcesser.cadidatesArray.isEmpty {
             os_log(.debug, log: log, "候选词列表为空")
             hideCadidatesWindow()
             if text.containsChineseCharacters {
@@ -313,6 +354,27 @@ class TransputInputController: IMKInputController {
         hideTransPanel()
         showCadidatesWindow()
     }
+
+//    func setMarkedTextOld(_ text: String) {
+//        os_log(.debug, log: log, "marked text: #%{public}s#", text)
+//        let attr = mark(forStyle: kTSMHiliteConvertedText, at: NSMakeRange(NSNotFound,0)) as? [NSAttributedString.Key : Any]
+//        let att = NSMutableAttributedString(string: text, attributes: attr)
+//        self.client().setMarkedText(att, selectionRange: NSRange(location: att.length, length: 0), replacementRange: .empty)
+//        self.candidatesWindow.update()
+//        if !self.inputHanlder.hasCadidates() {
+//            os_log(.debug, log: log, "候选词列表为空")
+//            hideCadidatesWindow()
+//            if text.containsChineseCharacters {
+//                //获取标记文本末尾的位置
+//                showPanel()
+//            } else {
+//                hideTransPanel()
+//            }
+//            return
+//        }
+//        hideTransPanel()
+//        showCadidatesWindow()
+//    }
     
     @objc func buttonClicked(_ sender: NSButton) {
         os_log(.debug, log: log, "点击翻译")
@@ -320,7 +382,7 @@ class TransputInputController: IMKInputController {
         self.transProg.isHidden = false
         self.transProg.setPresent(0)
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(timerFunc), userInfo: nil, repeats: true)
-        let content = self.inputHanlder.getCompsingText()
+        let content = self.inputProcesser.composingString
         // 处理按钮点击事件
         switch ConfigModel.shared.modelType {
         case .tongyi:
@@ -428,14 +490,14 @@ class TransputInputController: IMKInputController {
     override func activateServer(_ sender: Any!) {
         super.activateServer(sender)
         os_log(.debug, log: log, "启用输入法")
-        self.inputHanlder.clear()
+        self.inputProcesser.clear()
         hideTransPanel()
         hideCadidatesWindow()
     }
     
     override func deactivateServer(_ sender: Any!) {
         os_log(.debug, log: log, "停用输入法, sender: %{public}s", sender.debugDescription)
-        self.client()?.insertText(self.inputHanlder.getCompsingText(), replacementRange: .empty)
+        self.client()?.insertText(self.inputProcesser.composingString, replacementRange: .empty)
         hideCadidatesWindow()
         hideTransPanel()
     }
@@ -443,7 +505,7 @@ class TransputInputController: IMKInputController {
     func commitText(_ content: String) {
         self.hideTransPanel()
         self.client()?.insertText(content, replacementRange: .empty)
-        self.inputHanlder.clear()
+        self.inputProcesser.clear()
         hideCadidatesWindow()
     }
     
@@ -477,7 +539,7 @@ class TransputInputController: IMKInputController {
     
     func switchTranslate() {
         //不能在输入过程中切换翻译开关
-        if !self.inputHanlder.getCompsingText().isEmpty {
+        if !self.inputProcesser.composingString.isEmpty {
             return
         }
         //没设置apiKey不能切换翻译开关
@@ -504,8 +566,8 @@ class TransputInputController: IMKInputController {
     }
 
     func switchInputMode() {
-        self.inputHanlder.isEnMode.toggle()
-        if self.inputHanlder.isEnMode {
+        self.inputProcesser.isEnMode.toggle()
+        if self.inputProcesser.isEnMode {
             self.inputModelabel.stringValue = "英"
         } else {
             self.inputModelabel.stringValue = "中"
