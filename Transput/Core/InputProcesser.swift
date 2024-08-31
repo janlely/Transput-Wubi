@@ -7,6 +7,7 @@
 
 import Foundation
 import os.log
+import Cocoa
 
 class InputProcesser {
     
@@ -17,6 +18,7 @@ class InputProcesser {
     var cadidatesArray: [String] = [] //当前候选词列表
     var isEnMode: Bool = false
     private var wubiDict: TrieNode! //五笔词库
+    private var isCommandMode: Bool = false
 
 
     func processInput(_ charType: CharType) -> ResultState {
@@ -38,6 +40,9 @@ class InputProcesser {
             }
             return .commit
         case .lower(let char):
+            if isCommandMode && handlerCommand(char){
+                return .typing
+            }
             if codeCount == codeLimit {
                 if let cadidate = cadidatesArray.first {
                     let range = Range(NSMakeRange(cursorPos - codeLimit, 4), in: composingString)
@@ -51,7 +56,7 @@ class InputProcesser {
             codeCount = isEnMode ? 0 : codeCount + 1
             return .typing
         case .number(let char):
-            if let cadidate = cadidatesArray[safe: Int(String(char))!] {
+            if let cadidate = cadidatesArray[safe: Int(String(char))! - 1] {
                 let range = Range(NSMakeRange(cursorPos - codeCount, codeCount), in: composingString)
                 composingString = composingString.replacingCharacters(in: range!, with: cadidate)
                 cursorPos = cursorPos - codeCount + cadidate.count
@@ -104,6 +109,27 @@ class InputProcesser {
                 codeCount = 0
             }
             return .typing
+        case .forwardslash:
+            isCommandMode.toggle()
+            return processInput(.other(char: "/"))
+        }
+    }
+    
+    func handlerCommand(_ char: Character) -> Bool {
+        defer {
+            isCommandMode.toggle()
+        }
+        switch char {
+        case "v":
+            if let pasteContent = NSPasteboard.general
+                .string(forType: .string)?.filter({ !$0.isNewline }).prefix(100), !pasteContent.isEmpty {
+                let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
+                composingString = composingString.replacingCharacters(in: range!, with: pasteContent)
+                cursorPos += pasteContent.count - 1
+            }
+            return true
+        default:
+            return false
         }
     }
     
@@ -140,6 +166,7 @@ class InputProcesser {
         codeCount = 0
         cadidatesArray  = []
         isEnMode = false
+        isCommandMode = false
     }
     
     func dictLoaded() -> Bool {
@@ -150,11 +177,10 @@ class InputProcesser {
         self.wubiDict = Trie.loadFromText("wubi86_jidian.dict")
     }
     
-    func select(_ value: String) -> String {
+    func select(_ value: String) {
         let range = Range(NSMakeRange(cursorPos - codeCount, codeCount), in: composingString)
         composingString = composingString.replacingCharacters(in: range!, with: value)
         cursorPos = cursorPos - codeCount + value.count
-        return composingString
     }
     
     func toggleEnMode() {
@@ -162,6 +188,7 @@ class InputProcesser {
         cadidatesArray.removeAll()
         codeCount = 0
     }
+    
 }
 
 enum ResultState {
@@ -182,6 +209,7 @@ enum CharType {
     case right
     case home
     case end
+    case forwardslash
 }
 
 
@@ -191,6 +219,11 @@ extension String {
         self.insert(char, at: newIndex)
     }
     
+    mutating func insert(str: String, at index: Int) {
+        let newIndex = self.index(self.startIndex, offsetBy: index)
+        self.insert(contentsOf: str, at: newIndex)
+    }
+
     subscript(safe range: Range<String.Index>) -> Substring? {
         guard !range.isEmpty,
               range.lowerBound >= startIndex,

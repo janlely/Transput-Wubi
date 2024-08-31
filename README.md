@@ -21,6 +21,11 @@ Checked in March 2024.
 
 * 输入法菜单中可以设置AI翻译的apikey
 
+* AI翻译模式下Ctrl + Enter触发翻译按钮点击
+
+* AI翻译模式下 /v 从系统剪切板粘贴文本
+
+
 ## 本地安装
 
 * build
