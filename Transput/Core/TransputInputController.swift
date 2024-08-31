@@ -23,7 +23,6 @@ class TransputInputController: IMKInputController {
     private var transBtn: NSButton!
     private var transProg: CustomProgress!
     private var transRect: (x: CGFloat, y: CGFloat, height: CGFloat) = (0, 0, 0)
-//    private var inputHanlder: InputHandler = InputHandler()
     private var inputProcesser: InputProcesser = InputProcesser()
     private var shiftIsDown: Bool = false
     private var shiftPushedAlone: Bool = false

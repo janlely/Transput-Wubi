@@ -153,7 +153,7 @@ class InputProcesser {
             let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
             composingString = composingString.replacingCharacters(in: range!, with: "")
             cursorPos -= 1
-            return .commit
+            return composingString.isEmpty ? .typing : .commit
         case "s":
             os_log(.debug, log: log, "切换模式命令")
             if composingString != "/" {
@@ -227,13 +227,6 @@ class InputProcesser {
     
 }
 
-enum CommandResult {
-    case ignore
-    case handlerd
-    case translate
-    case commit
-    case toggleTranslate
-}
 
 enum ResultState {
     case ignore
