@@ -25,8 +25,6 @@
 		E5207A3F2C5F8C2100D78D7A /* Translater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A2F2C5F8C2100D78D7A /* Translater.swift */; };
 		E5207A402C5F8C2100D78D7A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5207A312C5F8C2100D78D7A /* Preview Assets.xcassets */; };
 		E5207A412C5F8C2100D78D7A /* ConfigModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A332C5F8C2100D78D7A /* ConfigModel.swift */; };
-		E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A342C5F8C2100D78D7A /* NSRange.swift */; };
-		E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5207A432C6053B500D78D7A /* InputEnums.swift */; };
 		E5365BFA2C8089EA0067F1F0 /* Gpt35Turbo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5365BF92C8089EA0067F1F0 /* Gpt35Turbo.swift */; };
 		E54BA5972C81A81E006E287C /* InputProcesser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54BA5962C81A81E006E287C /* InputProcesser.swift */; };
 		E54BE42F2C5B724B00727221 /* wubi86_jidian.dict in Resources */ = {isa = PBXBuildFile; fileRef = E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */; };
@@ -75,8 +73,6 @@
 		E5207A2F2C5F8C2100D78D7A /* Translater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Translater.swift; sourceTree = "<group>"; };
 		E5207A312C5F8C2100D78D7A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E5207A332C5F8C2100D78D7A /* ConfigModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigModel.swift; sourceTree = "<group>"; };
-		E5207A342C5F8C2100D78D7A /* NSRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSRange.swift; sourceTree = "<group>"; };
-		E5207A432C6053B500D78D7A /* InputEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEnums.swift; sourceTree = "<group>"; };
 		E5365BF92C8089EA0067F1F0 /* Gpt35Turbo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gpt35Turbo.swift; sourceTree = "<group>"; };
 		E54BA5962C81A81E006E287C /* InputProcesser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputProcesser.swift; sourceTree = "<group>"; };
 		E54BE42E2C5B724B00727221 /* wubi86_jidian.dict */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = wubi86_jidian.dict; sourceTree = SOURCE_ROOT; };
@@ -134,7 +130,6 @@
 			children = (
 				E5207A332C5F8C2100D78D7A /* ConfigModel.swift */,
 				E5207A252C5F8C2100D78D7A /* Core */,
-				E5207A352C5F8C2100D78D7A /* Extensions */,
 				E5207A322C5F8C2100D78D7A /* Preview Content */,
 				E5207A302C5F8C2100D78D7A /* Translate */,
 				E5207A2D2C5F8C2100D78D7A /* Utils */,
@@ -173,7 +168,6 @@
 			isa = PBXGroup;
 			children = (
 				E5207A242C5F8C2100D78D7A /* TransputInputController.swift */,
-				E5207A432C6053B500D78D7A /* InputEnums.swift */,
 				E54BA5962C81A81E006E287C /* InputProcesser.swift */,
 			);
 			path = Core;
@@ -215,14 +209,6 @@
 				E5207A312C5F8C2100D78D7A /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		E5207A352C5F8C2100D78D7A /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				E5207A342C5F8C2100D78D7A /* NSRange.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -361,13 +347,11 @@
 			files = (
 				1A41E64226E74627009B65D7 /* AppDelegate.swift in Sources */,
 				E5207A392C5F8C2100D78D7A /* ConfigWindowController.swift in Sources */,
-				E5207A442C6053B500D78D7A /* InputEnums.swift in Sources */,
 				E5207A3C2C5F8C2100D78D7A /* HttpClient.swift in Sources */,
 				E5207A3D2C5F8C2100D78D7A /* Trie.swift in Sources */,
 				E54BA5972C81A81E006E287C /* InputProcesser.swift in Sources */,
 				E5207A372C5F8C2100D78D7A /* TransputInputController.swift in Sources */,
 				E5E2D38D2C6DEA0B002EAF5D /* CustomProgress.swift in Sources */,
-				E5207A422C5F8C2100D78D7A /* NSRange.swift in Sources */,
 				E5207A3F2C5F8C2100D78D7A /* Translater.swift in Sources */,
 				E5207A3E2C5F8C2100D78D7A /* TongyiQianWen.swift in Sources */,
 				E5365BFA2C8089EA0067F1F0 /* Gpt35Turbo.swift in Sources */,

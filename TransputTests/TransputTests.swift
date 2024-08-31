@@ -143,6 +143,19 @@ class TransputTests: XCTestCase {
         assert(inputProcesser.composingString == "工a式")
         assert(inputProcesser.cursorPos == 2)
         assert(inputProcesser.codeCount == 1)
+        
+        let _ = inputProcesser.processInput(.backspace)
+        assert(inputProcesser.composingString == "工式")
+        assert(inputProcesser.cursorPos == 1)
+        assert(inputProcesser.codeCount == 0)
+        
+        let _ = inputProcesser.processInput(.backspace)
+        assert(inputProcesser.composingString == "式")
+        assert(inputProcesser.cursorPos == 0)
+        assert(inputProcesser.codeCount == 0)
+        
+        let _ = inputProcesser.makeCadidates()
+
     }
     
 }

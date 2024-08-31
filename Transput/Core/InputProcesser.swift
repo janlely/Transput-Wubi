@@ -25,9 +25,12 @@ class InputProcesser {
             if composingString.isEmpty {
                 return .ignore
             }
-            let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
-            composingString = composingString.replacingCharacters(in: range!, with: "")
-            cursorPos -= 1
+            if cursorPos > 0 {
+                let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
+                composingString = composingString.replacingCharacters(in: range!, with: "")
+                cursorPos -= 1
+            }
+            if codeCount > 0 { codeCount -= 1}
             return .typing
         case .enter:
             if composingString.isEmpty {
@@ -66,7 +69,7 @@ class InputProcesser {
                     cursorPos = cursorPos - codeLimit + cadidate.count
                 }
             }
-            composingString.insert(char: char, at: cursorPos)
+            composingString.insert(char: isEnMode ? char : convertPunctuation(char), at: cursorPos)
             cursorPos += 1
             codeCount = 0
             return .conditionalCommit
@@ -88,6 +91,18 @@ class InputProcesser {
         case .right:
             codeCount = 0
             cursorPos = cursorPos < composingString.count ? cursorPos + 1 : cursorPos
+            return .typing
+        case .home:
+            if cursorPos > 0 {
+                cursorPos = 0
+                codeCount = 0
+            }
+            return .typing
+        case .end:
+            if cursorPos < composingString.count {
+                cursorPos = composingString.count
+                codeCount = 0
+            }
             return .typing
         }
     }
@@ -141,6 +156,12 @@ class InputProcesser {
         cursorPos = cursorPos - codeCount + value.count
         return composingString
     }
+    
+    func toggleEnMode() {
+        isEnMode.toggle()
+        cadidatesArray.removeAll()
+        codeCount = 0
+    }
 }
 
 enum ResultState {
@@ -148,6 +169,19 @@ enum ResultState {
     case commit
     case conditionalCommit
     case typing
+}
+
+enum CharType {
+    case lower(char: Character) //小写字母
+    case number(num: Character) //数字
+    case other(char: Character) //其他可见字符：标点，大写字母
+    case space
+    case backspace
+    case enter
+    case left
+    case right
+    case home
+    case end
 }
 
 
