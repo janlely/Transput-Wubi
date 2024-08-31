@@ -249,11 +249,6 @@ class TransputInputController: IMKInputController {
         case 36: //Enter
             os_log(.debug, log: log, "handler,处理回车")
             return handlerInput(.enter)
-        case 44: //斜杠
-            if !ConfigModel.shared.useAITrans {
-                return handlerInput(.other(char: "/"))
-            }
-            return handlerInput(.forwardslash)
         case 49: //Space
             os_log(.debug, log: log, "handler,处理空格")
             return handlerInput(.space)
@@ -289,6 +284,10 @@ class TransputInputController: IMKInputController {
                 os_log(.debug, log: log, "不支持的按键2: %{public}d", event.keyCode)
                 return false
             }
+            if ch == "/" {
+                os_log(.debug, log: log, "命令开始")
+                return handlerInput(.forwardslash)
+            }
             if ch.isLowercase {
                 return handlerInput(.lower(char: ch))
             }
@@ -323,6 +322,16 @@ class TransputInputController: IMKInputController {
             return true
         case .ignore:
             return false
+        case .translate:
+            setMarkedText()
+            if transPanel.isVisible {
+                buttonClicked(nil)
+            }
+            return true
+        case .toggleTranslate:
+            setMarkedText()
+            switchTranslate()
+            return true
         }
     }
 
@@ -499,6 +508,7 @@ class TransputInputController: IMKInputController {
     func commitText(_ content: String = "") {
         let text = content.isEmpty ? self.inputProcesser.composingString : content
         self.hideTransPanel()
+        os_log(.debug, log: log, "提交: %{public}s", text)
         self.client()?.insertText(text, replacementRange: NSRange(location: NSNotFound, length: 0))
         self.inputProcesser.clear()
         hideCadidatesWindow()

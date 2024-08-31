@@ -19,9 +19,18 @@ class InputProcesser {
     var isEnMode: Bool = false
     private var wubiDict: TrieNode! //五笔词库
     private var isCommandMode: Bool = false
-
-
+    
     func processInput(_ charType: CharType) -> ResultState {
+        let im = isCommandMode
+        defer {
+            if im {
+                isCommandMode.toggle()
+            }
+        }
+        return doProcessInput(charType)
+    }
+
+    func doProcessInput(_ charType: CharType) -> ResultState {
         switch charType {
         case .backspace:
             if composingString.isEmpty {
@@ -40,9 +49,13 @@ class InputProcesser {
             }
             return .commit
         case .lower(let char):
-            if isCommandMode && handlerCommand(char){
-                return .typing
+            os_log(.debug, log: log, "命令状态: %{public}s", isCommandMode ? "Yes" : "No")
+            if isCommandMode {
+                os_log(.debug, log: log, "处理命令")
+                return handlerCommand(char)
             }
+            return doProcessInput(.lower2(char: char))
+        case .lower2(let char):
             if codeCount == codeLimit {
                 if let cadidate = cadidatesArray.first {
                     let range = Range(NSMakeRange(cursorPos - codeLimit, 4), in: composingString)
@@ -77,7 +90,7 @@ class InputProcesser {
             composingString.insert(char: isEnMode ? char : convertPunctuation(char), at: cursorPos)
             cursorPos += 1
             codeCount = 0
-            return .conditionalCommit
+            return char == "/" ? .typing : .conditionalCommit
         case .space:
             if let cadidate = cadidatesArray.first {
                 let range = Range(NSMakeRange(cursorPos - codeCount, codeCount), in: composingString)
@@ -111,25 +124,48 @@ class InputProcesser {
             return .typing
         case .forwardslash:
             isCommandMode.toggle()
-            return processInput(.other(char: "/"))
+            os_log(.debug, log: log, "命令状态: %{public}s", isCommandMode ? "Yes" : "No")
+            return isCommandMode ? doProcessInput(.other(char: "/")) : .typing
         }
     }
+
+
     
-    func handlerCommand(_ char: Character) -> Bool {
-        defer {
-            isCommandMode.toggle()
-        }
+    func handlerCommand(_ char: Character) -> ResultState {
         switch char {
         case "v":
+            os_log(.debug, log: log, "粘贴命令")
             if let pasteContent = NSPasteboard.general
                 .string(forType: .string)?.filter({ !$0.isNewline }).prefix(100), !pasteContent.isEmpty {
                 let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
                 composingString = composingString.replacingCharacters(in: range!, with: pasteContent)
                 cursorPos += pasteContent.count - 1
             }
-            return true
+            return .conditionalCommit
+        case "t":
+            os_log(.debug, log: log, "翻译命令")
+            let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
+            composingString = composingString.replacingCharacters(in: range!, with: "")
+            cursorPos -= 1
+            return .translate
+        case "g":
+            os_log(.debug, log: log, "提交命令")
+            let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
+            composingString = composingString.replacingCharacters(in: range!, with: "")
+            cursorPos -= 1
+            return .commit
+        case "s":
+            os_log(.debug, log: log, "切换模式命令")
+            if composingString != "/" {
+                return doProcessInput(.lower2(char: "s"))
+            }
+            let range = Range(NSMakeRange(cursorPos - 1, 1), in: composingString)
+            composingString = composingString.replacingCharacters(in: range!, with: "")
+            cursorPos -= 1
+            return .toggleTranslate
         default:
-            return false
+            os_log(.debug, log: log, "不是命令")
+            return doProcessInput(.lower2(char: char))
         }
     }
     
@@ -191,15 +227,26 @@ class InputProcesser {
     
 }
 
+enum CommandResult {
+    case ignore
+    case handlerd
+    case translate
+    case commit
+    case toggleTranslate
+}
+
 enum ResultState {
     case ignore
     case commit
     case conditionalCommit
     case typing
+    case translate
+    case toggleTranslate
 }
 
 enum CharType {
     case lower(char: Character) //小写字母
+    case lower2(char: Character) //小写字母,不处理命令
     case number(num: Character) //数字
     case other(char: Character) //其他可见字符：标点，大写字母
     case space
@@ -242,3 +289,4 @@ extension Collection {
         return indices.contains(index) ? self[index] : nil
     }
 }
+

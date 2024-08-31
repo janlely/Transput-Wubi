@@ -17,6 +17,14 @@ class TransputTests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+    
+    func testExample() throws {
+        let inputProcesser = InputProcesser()
+        inputProcesser.loadDict()
+        
+        let _ = inputProcesser.processInput(.forwardslash)
+        let _ = inputProcesser.processInput(.lower(char: "v"))
+    }
 
     func testExample1() throws {
         // This is an example of a functional test case.
