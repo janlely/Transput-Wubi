@@ -2,7 +2,7 @@
 
 
 APP_NAME="Transput"
-APP_PATH="build/Release/Transput.app"
+APP_PATH="build/Release/Transput-Wubi.app"
 INSTALL_LOCATION="$HOME/Library/Input Methods"
 PKG_NAME="$APP_NAME.pkg"
 

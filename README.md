@@ -1,3 +1,5 @@
+请迁移到[Transput](https://github.com/janlely/Transput)
+
 # Transput-Wubi
 
 一个支持AI翻译的五笔输入法，基础框架fork自[Typut](https://github.com/ensan-hcl/Typut)
